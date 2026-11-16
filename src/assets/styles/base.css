@@ -1,0 +1,1788 @@
+/* Reset, document defaults, and the shared control vocabulary. */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 var(--text-md) / 1.45 var(--font-ui);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* While a divider is dragged, the pointer keeps its resize shape and text is not selected. */
+body[data-resizing] {
+    user-select: none;
+}
+
+body[data-resizing='vertical'] * {
+    cursor: col-resize !important;
+}
+
+body[data-resizing='horizontal'] * {
+    cursor: row-resize !important;
+}
+
+h1,
+h2,
+h3,
+p {
+    margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+code {
+    font-family: var(--font-code);
+    font-size: 0.92em;
+}
+
+::selection {
+    background: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--ink) 22%, transparent) transparent;
+}
+
+.code {
+    font-family: var(--font-code);
+    font-size: var(--code-font-size, var(--text-sm));
+}
+
+.muted {
+    color: var(--ink-2);
+}
+
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/*
+ * Text that turns bold on hover without moving its neighbours: an invisible bold copy
+ * (from data-text) holds the width the bold text needs.
+ */
+.steady-bold::after {
+    content: attr(data-text);
+    display: block;
+    height: 0;
+    overflow: hidden;
+    font-weight: 600;
+    visibility: hidden;
+}
+
+/* ── Hover: the text turns bold and full ink, so it is clear what the pointer is on ── */
+
+.doc-tab:hover .steady-bold,
+.tabs button:hover .steady-bold,
+.tree-row:hover .tree-name,
+.menu-item:hover:not([aria-disabled='true'], .danger) > .grow,
+.breadcrumb-link:hover {
+    color: var(--ink);
+    font-weight: 600;
+}
+
+/* Delete and the like stay red; they turn bold too. */
+.menu-item.danger:hover:not([aria-disabled='true']) > .grow {
+    font-weight: 600;
+}
+
+.grow {
+    flex: 1;
+    min-width: 0;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────── */
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: var(--control-height);
+    padding: 0 var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background-color 120ms var(--ease-out),
+        border-color 120ms var(--ease-out);
+}
+
+.button:hover:not(:disabled) {
+    background: var(--hover);
+}
+
+.button:active:not(:disabled) {
+    background: var(--pressed);
+}
+
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.button.primary,
+.button.send-button {
+    border-color: transparent;
+    background: var(--accent);
+    color: var(--accent-ink);
+}
+
+.button.primary:hover:not(:disabled),
+.button.send-button:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent) 86%, black);
+}
+
+.button.danger {
+    border-color: transparent;
+    background: var(--danger);
+    color: var(--bg);
+}
+
+.button.ghost {
+    border-color: transparent;
+}
+
+.icon-button {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition:
+        background-color 120ms var(--ease-out),
+        color 120ms var(--ease-out);
+}
+
+.icon-button:hover:not(:disabled) {
+    background: var(--hover);
+    color: var(--ink);
+}
+
+.icon-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.link-button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.link-button:hover:not(:disabled) {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.link-button:disabled {
+    color: var(--ink-3);
+    cursor: not-allowed;
+}
+
+/* ── Fields ──────────────────────────────────────────────────────────── */
+
+.input,
+.textarea {
+    width: 100%;
+    height: var(--control-height);
+    padding: 0 var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    transition: border-color 120ms var(--ease-out);
+}
+
+.textarea {
+    /* Grows with its text, between three lines and half the window: no drag handle needed. */
+    field-sizing: content;
+    height: auto;
+    min-height: calc(3 * 1.55em + 20px);
+    max-height: 50vh;
+    padding: 10px var(--space-3);
+    border-color: color-mix(in srgb, var(--line) 80%, transparent);
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--ink) 3%, var(--bg));
+    line-height: 1.55;
+    resize: none;
+    transition:
+        border-color 150ms var(--ease-out),
+        background-color 150ms var(--ease-out),
+        box-shadow 150ms var(--ease-out);
+}
+
+.textarea:hover:not(:disabled, :focus-visible) {
+    background: color-mix(in srgb, var(--ink) 5%, var(--bg));
+}
+
+.textarea:focus-visible {
+    background: var(--bg);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+    color: var(--ink-3);
+}
+
+.input:hover,
+.textarea:hover {
+    border-color: color-mix(in srgb, var(--ink) 30%, var(--line));
+}
+
+.input:focus-visible,
+.textarea:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.input:disabled,
+.textarea:disabled {
+    color: var(--ink-2);
+    cursor: not-allowed;
+}
+
+.field {
+    display: grid;
+    gap: var(--space-1);
+}
+
+.field > span {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--ink-2);
+}
+
+.form-error {
+    color: var(--danger);
+    font-size: var(--text-sm);
+}
+
+.radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--text-sm);
+    cursor: pointer;
+}
+
+.radio input,
+input[type='checkbox'] {
+    accent-color: var(--accent);
+}
+
+/* ── Text with {{variables}} coloured ────────────────────────────────── */
+
+.variable-input {
+    position: relative;
+    display: flex;
+    min-width: 0;
+}
+
+.variable-input-mirror,
+.variable-input-field {
+    margin: 0;
+    padding: 0 var(--space-2);
+    font: inherit;
+    letter-spacing: normal;
+    white-space: pre;
+}
+
+.variable-input-mirror {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    pointer-events: none;
+    color: var(--ink);
+}
+
+.variable-input-field {
+    position: relative;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: transparent;
+    caret-color: var(--ink);
+}
+
+.variable-input-field::placeholder {
+    color: var(--ink-3);
+}
+
+.variable-input-field:focus-visible {
+    outline: none;
+}
+
+.variable-input-field::selection {
+    color: transparent;
+}
+
+.variable-input-field:disabled + .variable-input-mirror,
+.variable-input:has(:disabled) .variable-input-mirror {
+    color: var(--ink-2);
+}
+
+[data-token='variable'] {
+    color: var(--accent);
+}
+
+[data-token='unknown'] {
+    color: var(--danger);
+}
+
+[data-token='path'] {
+    color: var(--patch);
+}
+
+/* ── Code editor ─────────────────────────────────────────────────────── */
+
+.code-area {
+    /* Settings › Code Editor sets the editor font size; lines stay in step with the gutter numbers. */
+    --code-line: calc(var(--code-font-size, 12px) * 1.65);
+    height: calc(var(--rows, 8) * var(--code-line) + 18px);
+    min-height: calc(3 * var(--code-line) + 18px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    resize: vertical;
+    font: 400 var(--code-font-size, 12px) / var(--code-line) var(--font-code);
+    /* CodeMirror layers its gutter and cursors up to z-index 200; this keeps them under menus. */
+    isolation: isolate;
+}
+
+.code-area:focus-within {
+    border-color: var(--accent);
+}
+
+/* Fills its container (the request pane's Body and Scripts): the divider sizes it. */
+.code-area.code-area-fill {
+    height: auto;
+    resize: none;
+}
+
+.code-area .cm-editor {
+    height: 100%;
+    background: transparent;
+    color: var(--ink);
+}
+
+.code-area .cm-editor.cm-focused {
+    outline: none;
+}
+
+.code-area .cm-scroller {
+    font: inherit;
+    line-height: var(--code-line);
+}
+
+.code-area .cm-content {
+    padding: var(--space-2) 0;
+    caret-color: var(--ink);
+}
+
+.code-area .cm-line {
+    padding: 0 var(--space-3) 0 var(--space-2);
+}
+
+.code-area .cm-gutters {
+    min-width: 40px;
+    border-right: 0;
+    background: var(--bg);
+    color: var(--ink-3);
+}
+
+/* As in VS Code: the current line's number is bright, without a band across the gutter. */
+.code-area .cm-gutters .cm-activeLineGutter {
+    background: transparent;
+    color: var(--ink);
+}
+
+.code-area .cm-lineNumbers .cm-gutterElement {
+    padding: 0 var(--space-2) 0 var(--space-3);
+}
+
+.code-area .cm-cursor {
+    border-left-color: var(--ink);
+}
+
+.code-area .cm-activeLine,
+.code-area .cm-activeLineGutter {
+    background-color: color-mix(in srgb, var(--ink) 4%, transparent);
+}
+
+.code-area .cm-editor:not(.cm-focused) .cm-activeLine,
+.code-area .cm-editor:not(.cm-focused) .cm-activeLineGutter {
+    background-color: transparent;
+}
+
+.code-area .cm-selectionBackground,
+.code-area .cm-content ::selection {
+    background: color-mix(in srgb, var(--accent) 22%, transparent) !important;
+}
+
+.code-area .cm-focused .cm-selectionBackground {
+    background: color-mix(in srgb, var(--accent) 34%, transparent) !important;
+}
+
+.code-area .cm-selectionMatch {
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.code-area .cm-matchingBracket {
+    background: color-mix(in srgb, var(--ink) 12%, transparent);
+    outline: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+}
+
+.code-area .cm-nonmatchingBracket {
+    color: var(--danger);
+}
+
+.code-area .cm-content {
+    --guide-unit: calc(var(--indent-size, 2) * 1ch);
+}
+
+/* Indent guides: one line per level, drawn over the line's leading space; the pair around the cursor is stronger. */
+.code-area .cm-guides {
+    background-image: repeating-linear-gradient(
+        to right,
+        color-mix(in srgb, var(--ink) 14%, transparent) 0 1px,
+        transparent 1px var(--guide-unit)
+    );
+    background-size: calc(var(--guide-count) * var(--guide-unit)) 100%;
+    background-repeat: no-repeat;
+    background-origin: content-box;
+}
+
+.code-area .cm-guides.cm-guide-active {
+    background-image:
+        linear-gradient(
+            color-mix(in srgb, var(--ink) 45%, transparent),
+            color-mix(in srgb, var(--ink) 45%, transparent)
+        ),
+        repeating-linear-gradient(
+            to right,
+            color-mix(in srgb, var(--ink) 14%, transparent) 0 1px,
+            transparent 1px var(--guide-unit)
+        );
+    background-size:
+        1px 100%,
+        calc(var(--guide-count) * var(--guide-unit)) 100%;
+    background-position:
+        calc(var(--guide-active) * var(--guide-unit)) 0,
+        0 0;
+}
+
+/* Brackets by nesting level, as VS Code's bracket pair colours. */
+.code-area .cm-bracket-0 {
+    color: var(--syn-bracket-0);
+}
+.code-area .cm-bracket-1 {
+    color: var(--syn-bracket-1);
+}
+.code-area .cm-bracket-2 {
+    color: var(--syn-bracket-2);
+}
+.code-area .cm-bracket-wrong {
+    color: var(--danger);
+}
+
+.code-area .cm-fold-marker {
+    display: inline-grid;
+    place-items: center;
+    height: 100%;
+    transition: transform 150ms var(--ease-out);
+}
+
+.code-area .cm-fold-marker[data-open='false'] {
+    transform: rotate(-90deg);
+}
+
+.code-area .cm-fold-marker:hover {
+    color: var(--ink);
+}
+
+.code-area .cm-foldGutter .cm-gutterElement {
+    display: grid;
+    place-items: center;
+    padding: 0 var(--space-1);
+    color: var(--ink-3);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity var(--duration-fast, 120ms);
+}
+
+.code-area .cm-gutters:hover .cm-foldGutter .cm-gutterElement,
+.code-area .cm-foldGutter .cm-gutterElement:has([title='Unfold line']) {
+    opacity: 1;
+}
+
+.code-area .cm-foldPlaceholder {
+    padding: 0 var(--space-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+    color: var(--ink-3);
+}
+
+/* ── Minimap, on the right of a filling editor ── */
+
+.code-area {
+    --minimap-width: 72px;
+}
+
+.code-area .cm-minimap {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    width: var(--minimap-width);
+    overflow: hidden;
+}
+
+.code-area .cm-minimap canvas {
+    display: block;
+    opacity: 0;
+    transition: opacity 200ms var(--ease-out);
+}
+
+/* The overview shows while the pointer is over the editor; its space stays, so nothing moves. */
+.code-area:hover .cm-minimap canvas,
+.code-area .cm-minimap-dragging canvas {
+    opacity: 1;
+}
+
+.code-area .cm-minimap-slider {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    background: color-mix(in srgb, var(--ink) 10%, transparent);
+    opacity: 0;
+    transition:
+        opacity 150ms var(--ease-out),
+        background-color 150ms var(--ease-out);
+}
+
+.code-area .cm-minimap:hover .cm-minimap-slider,
+.code-area .cm-minimap-dragging .cm-minimap-slider {
+    opacity: 1;
+}
+
+.code-area .cm-minimap-dragging .cm-minimap-slider {
+    background: color-mix(in srgb, var(--ink) 16%, transparent);
+}
+
+.code-area .cm-has-minimap .cm-scroller {
+    margin-right: var(--minimap-width);
+}
+
+/* Small editors (auth fields, collection scripts) stay without it. */
+.code-area:not(.code-area-fill) .cm-minimap {
+    display: none;
+}
+
+.code-area:not(.code-area-fill) .cm-has-minimap .cm-scroller {
+    margin-right: 0;
+}
+
+.code-area .cm-placeholder {
+    color: var(--ink-3);
+}
+
+.code-area[data-disabled='true'] .cm-content {
+    color: var(--ink-2);
+    cursor: not-allowed;
+}
+
+/* Find and replace (⌘F), drawn in the app's own controls. */
+.code-area .cm-panels {
+    border-top: 1px solid var(--line);
+    background: var(--raised);
+    color: var(--ink);
+}
+
+.code-area .cm-panels-bottom {
+    border-top: 1px solid var(--line);
+}
+
+.code-area .cm-search {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px var(--space-2);
+    padding: var(--space-2);
+    font: 400 var(--text-sm) var(--font-ui);
+}
+
+.code-area .cm-search label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.code-area .cm-textfield {
+    height: 26px;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--ink);
+    font: inherit;
+}
+
+.code-area .cm-textfield:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.code-area .cm-button {
+    height: 26px;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--panel);
+    background-image: none;
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+}
+
+.code-area .cm-button:hover {
+    background: var(--hover);
+}
+
+.code-area .cm-search button[name='close'] {
+    margin-left: auto;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font-size: var(--text-lg);
+    cursor: pointer;
+}
+
+.code-area .cm-searchMatch {
+    background: color-mix(in srgb, var(--post) 30%, transparent);
+}
+
+.code-area .cm-searchMatch-selected {
+    background: color-mix(in srgb, var(--post) 55%, transparent);
+}
+
+/* ── Tabs ────────────────────────────────────────────────────────────── */
+
+.tabs {
+    display: flex;
+    gap: var(--space-4);
+    padding: 0 var(--space-4);
+}
+
+.tabs button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 120ms var(--ease-out);
+}
+
+.tabs button:hover,
+.tabs button[aria-selected='true'] {
+    color: var(--ink);
+}
+
+.tabs button[aria-selected='true']::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: var(--accent);
+}
+
+.tab-count {
+    color: var(--ok);
+    font-size: var(--text-xs);
+}
+
+.tab-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ok);
+}
+
+/* ── Menu ────────────────────────────────────────────────────────────── */
+
+.menu-trigger {
+    display: inline-flex;
+}
+
+.menu {
+    position: fixed;
+    z-index: 50;
+    min-width: 200px;
+    max-width: min(360px, calc(100vw - 16px));
+    overflow-y: auto;
+    padding: var(--space-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--raised);
+    box-shadow: var(--shadow-pop);
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    height: 30px;
+    padding: 0 var(--space-2);
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        background-color 120ms var(--ease-out),
+        color 120ms var(--ease-out);
+}
+
+.menu-item:hover,
+.menu-item:focus-visible {
+    outline: none;
+    background: var(--hover);
+}
+
+.menu-item[aria-disabled='true'] {
+    color: var(--ink-3);
+    cursor: default;
+}
+
+.menu-item.danger {
+    color: var(--danger);
+}
+
+.menu-item[aria-checked='true'] {
+    font-weight: 600;
+}
+
+/* ── Colour tags ─────────────────────────────────────────────────────── */
+
+[data-tag='red'] {
+    --tag: var(--delete);
+}
+[data-tag='green'] {
+    --tag: var(--get);
+}
+[data-tag='blue'] {
+    --tag: var(--put);
+}
+[data-tag='yellow'] {
+    --tag: var(--post);
+}
+[data-tag='pink'] {
+    --tag: var(--options);
+}
+[data-tag='teal'] {
+    --tag: var(--socket);
+}
+[data-tag='orange'] {
+    --tag: #e8833a;
+}
+[data-tag='indigo'] {
+    --tag: #6e76e5;
+}
+[data-tag='purple'] {
+    --tag: #a374e8;
+}
+[data-tag='gray'] {
+    --tag: #8b949e;
+}
+
+.tag-dot {
+    flex: none;
+    box-sizing: border-box;
+    width: 1em;
+    height: 1em;
+    padding: 0;
+    border: 1.5px solid var(--tag, var(--ink-3));
+    border-radius: 4px;
+    background: var(--tag, transparent);
+    transition:
+        background-color 160ms var(--ease-out),
+        border-color 160ms var(--ease-out),
+        transform 160ms var(--ease-out);
+}
+
+.tag-trigger {
+    position: relative;
+    cursor: pointer;
+}
+
+/* A larger target than the square itself. */
+.tag-trigger::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+}
+
+.tag-trigger:hover {
+    transform: scale(1.18);
+}
+
+.tag-trigger:active,
+.tag-trigger[aria-expanded='true'] {
+    transform: scale(0.92);
+}
+
+.tag-trigger:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.color-tag-picker {
+    width: 212px;
+}
+
+.color-tags {
+    display: grid;
+    grid-template-columns: repeat(6, 24px);
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: 6px var(--space-2);
+}
+
+.color-tag-custom {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 6px var(--space-2);
+}
+
+/* The native colour field fills the square, invisible: the square is what shows. */
+.color-tag-native {
+    position: relative;
+    flex: none;
+    color: var(--ink-2);
+}
+
+.color-tag-native[data-tag] {
+    color: var(--bg);
+}
+
+.color-tag-native input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.color-tag-hex {
+    flex: 1;
+    min-width: 0;
+    height: 26px;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-code);
+    font-size: var(--text-sm);
+}
+
+.color-tag-hex:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.color-tag-apply {
+    flex: none;
+    height: 26px;
+    padding: 0 var(--space-2);
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 120ms var(--ease-out);
+}
+
+.color-tag-apply:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.color-tag {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid var(--tag, var(--ink-3));
+    border-radius: var(--radius-md);
+    background: var(--tag, none);
+    color: var(--bg);
+    cursor: pointer;
+}
+
+.color-tag {
+    transition:
+        transform 140ms var(--ease-out),
+        filter 140ms var(--ease-out);
+}
+
+.color-tag:hover {
+    filter: brightness(1.15);
+    transform: scale(1.12);
+}
+
+.color-tag:active {
+    transform: scale(0.94);
+}
+
+.color-tag svg {
+    animation: tag-check 180ms var(--ease-out);
+}
+
+@keyframes tag-check {
+    from {
+        opacity: 0;
+        transform: scale(0.4);
+    }
+}
+
+.color-tag:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.color-tag[aria-checked='true']:not([data-tag]) {
+    box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* A choice with a sample of what it looks like, such as a JSON style: samples line up in a column. */
+.menu-choice {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--space-6);
+}
+
+.menu-example {
+    font-family: var(--font-code);
+    font-size: 11px;
+    color: var(--ink-3);
+}
+
+/* A check marks the chosen one; weight stays put so the columns do not shift. */
+.menu-item:has(.menu-check)[aria-checked='true'] {
+    font-weight: 400;
+}
+
+.menu-item .menu-check {
+    color: var(--accent);
+    visibility: hidden;
+}
+
+.menu-item[aria-checked='true'] .menu-check {
+    visibility: visible;
+}
+
+.menu-icon {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    /* At least an icon's width; a method label such as GET is wider. */
+    min-width: 16px;
+    color: var(--ink-2);
+}
+
+.menu-item.danger .menu-icon {
+    color: inherit;
+}
+
+.menu-hint {
+    border: 0;
+    background: none;
+    color: var(--ink-3);
+    font: 400 var(--text-xs) var(--font-ui);
+}
+
+.menu-label {
+    padding: var(--space-1) var(--space-2);
+    color: var(--ink-2);
+    font-size: var(--text-xs);
+    font-weight: 600;
+}
+
+.menu-separator {
+    height: 1px;
+    margin: var(--space-1) 0;
+    background: var(--line);
+}
+
+@keyframes menu-in {
+    from {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+}
+
+/* ── Resizable dividers ──────────────────────────────────────────────── */
+
+.resize-handle {
+    position: relative;
+    z-index: 2;
+    background: var(--line);
+    transition: background-color 120ms var(--ease-out);
+}
+
+.resize-handle[data-orientation='vertical'] {
+    width: 1px;
+    cursor: col-resize;
+}
+
+.resize-handle[data-orientation='horizontal'] {
+    height: 1px;
+    cursor: row-resize;
+}
+
+/* A wider, invisible area to grab, so the 1px line is easy to hit. */
+.resize-handle::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+}
+
+.resize-handle:hover,
+.resize-handle:focus-visible,
+body[data-resizing] .resize-handle {
+    outline: none;
+    background: var(--accent);
+}
+
+/* ── Moving panels ───────────────────────────────────────────────────── */
+
+.dock-grip {
+    cursor: grab;
+    touch-action: none;
+}
+
+body[data-docking] {
+    user-select: none;
+}
+
+body[data-docking] * {
+    cursor: grabbing !important;
+}
+
+/* Drawn over the area a panel docks around while its grip is dragged: where the panel would go. */
+.dock-overlay {
+    position: fixed;
+    z-index: 60;
+    pointer-events: none;
+}
+
+.dock-preview {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    transition: inset 140ms var(--ease-out);
+}
+
+.dock-preview[data-zone='left'] {
+    inset: 4px 50% 4px 4px;
+}
+.dock-preview[data-zone='right'] {
+    inset: 4px 4px 4px 50%;
+}
+.dock-preview[data-zone='bottom'] {
+    inset: 50% 4px 4px 4px;
+}
+
+.dock-preview-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-sm);
+    background: var(--raised);
+    box-shadow: var(--shadow-pop);
+    color: var(--ink);
+    font-size: var(--text-sm);
+    font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dock-preview {
+        transition: none;
+    }
+}
+
+/* ── Key and value table ─────────────────────────────────────────────── */
+
+.kv {
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+}
+
+.kv .kv-check {
+    width: 32px;
+}
+
+.kv .kv-key {
+    width: 28%;
+}
+
+.kv .kv-value {
+    width: 34%;
+}
+
+.kv .kv-actions {
+    width: 36px;
+}
+
+/* Without the Description column, key and value share the width. */
+.kv[data-description='false'] .kv-key {
+    width: 40%;
+}
+
+.kv[data-description='false'] .kv-value {
+    width: auto;
+}
+
+.kv th {
+    height: 28px;
+    padding: 0 var(--space-2);
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--ink) 3%, transparent);
+    color: var(--ink-3);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-align: left;
+}
+
+.kv td {
+    height: 32px;
+    padding: 0;
+    border-top: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+    text-align: center;
+    transition: background-color 120ms var(--ease-out);
+}
+
+.kv tbody tr:first-child td {
+    border-top: 0;
+}
+
+.kv tbody tr:hover td {
+    background: color-mix(in srgb, var(--ink) 4%, transparent);
+}
+
+.kv input[type='checkbox'] {
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.kv-cell,
+.kv-description {
+    width: 100%;
+    height: 30px;
+    font-size: var(--text-md);
+}
+
+.kv-description {
+    padding: 0 var(--space-2);
+    border: 0;
+    background: transparent;
+}
+
+.kv-description::placeholder {
+    color: var(--ink-3);
+}
+
+.kv-cell:focus-within,
+.kv-description:focus-visible {
+    border-radius: var(--radius-sm);
+    outline: 1px solid var(--accent);
+    outline-offset: -2px;
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.kv tr[data-off='true'] .variable-input-mirror,
+.kv tr[data-off='true'] .kv-description {
+    color: var(--ink-3);
+    text-decoration: line-through;
+}
+
+.kv-remove {
+    opacity: 0;
+    transition: opacity 120ms var(--ease-out);
+}
+
+.kv tr:hover .kv-remove,
+.kv-remove:focus-visible {
+    opacity: 1;
+}
+
+.kv-root {
+    display: grid;
+    gap: var(--space-2);
+}
+
+.kv-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--text-sm);
+}
+
+.kv-root .textarea {
+    font-family: var(--font-code);
+}
+
+/* ── Dialog ──────────────────────────────────────────────────────────── */
+
+.dialog {
+    width: min(480px, calc(100vw - 32px));
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--raised);
+    color: var(--ink);
+    box-shadow: var(--shadow-pop);
+}
+
+.dialog::backdrop {
+    background: rgb(0 0 0 / 0.5);
+}
+
+.dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-4) 0;
+}
+
+.dialog-header h2 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+}
+
+.dialog-body {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+/* ── Small pieces ────────────────────────────────────────────────────── */
+
+.method {
+    flex: none;
+    min-width: 30px;
+    font-size: var(--text-2xs);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-align: right;
+}
+
+[data-method='GET'],
+[data-method='HEAD'] {
+    color: var(--get);
+}
+[data-method='POST'] {
+    color: var(--post);
+}
+[data-method='PUT'] {
+    color: var(--put);
+}
+[data-method='PATCH'] {
+    color: var(--patch);
+}
+[data-method='DELETE'] {
+    color: var(--delete);
+}
+[data-method='OPTIONS'] {
+    color: var(--options);
+}
+[data-method='WS'] {
+    color: var(--socket);
+}
+
+.avatar {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 700;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex: none;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: var(--text-xs);
+    font-weight: 600;
+}
+
+.empty {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: var(--space-2);
+    padding: var(--space-6);
+    color: var(--ink-2);
+    text-align: center;
+}
+
+.empty h3 {
+    color: var(--ink);
+    font-size: var(--text-md);
+    font-weight: 600;
+}
+
+.empty p {
+    max-width: 38ch;
+}
+
+.empty code {
+    color: var(--ink);
+}
+
+.empty .button,
+.empty .row {
+    margin-top: var(--space-2);
+}
+
+kbd {
+    padding: 1px 5px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--panel);
+    font: 500 var(--text-xs) var(--font-ui);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        /* None at all, not a very short one: every element has transition-property: all, and a
+           short transition would leave a just-shown menu hidden for a moment, so it could not
+           take the focus. */
+        transition: none !important;
+    }
+}
+
+/* ── Shared focus treatment for fields ───────────────────────────────── */
+
+.input:focus-visible,
+.textarea:focus-visible,
+.select-field:focus-visible,
+.input-group:focus-within,
+.url-box:focus-within,
+.code-area:focus-within {
+    box-shadow: var(--focus-ring);
+}
+
+/* ── Select ──────────────────────────────────────────────────────────── */
+
+.select-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    height: var(--control-height);
+    padding: 0 var(--space-2) 0 var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    transition:
+        border-color 120ms var(--ease-out),
+        background-color 120ms var(--ease-out),
+        box-shadow 120ms var(--ease-out);
+}
+
+.select-field:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--ink) 30%, var(--line));
+}
+
+.select-field:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.select-field:disabled {
+    color: var(--ink-2);
+    cursor: not-allowed;
+}
+
+.select-field[aria-expanded='true'] {
+    border-color: var(--accent);
+}
+
+.select-quiet {
+    height: 28px;
+    padding: 0 6px 0 var(--space-2);
+    border-color: transparent;
+}
+
+.select-quiet:hover:not(:disabled) {
+    border-color: transparent;
+    background: var(--hover);
+}
+
+.select-quiet[aria-expanded='true'] {
+    border-color: transparent;
+    background: var(--selected);
+}
+
+.select-value {
+    flex: 1;
+    min-width: 0;
+}
+
+.select-icon {
+    display: inline-grid;
+    place-items: center;
+    color: var(--ink-2);
+}
+
+.select-chevron {
+    flex: none;
+    color: var(--ink-3);
+    transition: transform 150ms var(--ease-out);
+}
+
+.select-field[aria-expanded='true'] .select-chevron {
+    transform: rotate(180deg);
+}
+
+.select-option {
+    height: auto;
+    min-height: 30px;
+    padding-block: 5px;
+}
+
+.select-option .grow {
+    display: grid;
+}
+
+.select-option-hint {
+    color: var(--ink-3);
+    font-size: var(--text-xs);
+}
+
+.select-check {
+    flex: none;
+    color: var(--accent);
+    visibility: hidden;
+}
+
+.select-option[aria-selected='true'] .select-check {
+    visibility: visible;
+}
+
+.select-option[aria-selected='true'] .select-option-label {
+    font-weight: 600;
+}
+
+.method-text {
+    font-weight: 700;
+}
+.method-GET,
+.method-HEAD {
+    color: var(--get);
+}
+.method-POST {
+    color: var(--post);
+}
+.method-PUT {
+    color: var(--put);
+}
+.method-PATCH {
+    color: var(--patch);
+}
+.method-DELETE {
+    color: var(--delete);
+}
+.method-OPTIONS {
+    color: var(--options);
+}
+
+/* ── Field with an icon inside ───────────────────────────────────────── */
+
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    height: 30px;
+    padding: 0 6px 0 var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    transition:
+        border-color 120ms var(--ease-out),
+        box-shadow 120ms var(--ease-out);
+}
+
+.input-group:hover {
+    border-color: color-mix(in srgb, var(--ink) 30%, var(--line));
+}
+
+.input-group:focus-within {
+    border-color: var(--accent);
+}
+
+.input-group-icon {
+    flex: none;
+    color: var(--ink-3);
+}
+
+.input-group-field {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+}
+
+.input-group-field::placeholder {
+    color: var(--ink-3);
+}
+
+.input-group-field:focus-visible {
+    outline: none;
+}
+
+.input-group-clear {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--hover);
+    color: var(--ink-2);
+    cursor: pointer;
+    transition:
+        background-color 120ms var(--ease-out),
+        color 120ms var(--ease-out);
+}
+
+.input-group-clear:hover {
+    background: var(--pressed);
+    color: var(--ink);
+}
+
+/* ── Switch, segmented control, swatches ─────────────────────────────── */
+
+.switch {
+    position: relative;
+    flex: none;
+    width: 32px;
+    height: 18px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ink) 22%, transparent);
+    cursor: pointer;
+    transition: background-color 150ms var(--ease-out);
+}
+
+.switch[aria-checked='true'] {
+    background: var(--accent);
+}
+
+.switch:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.switch-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+    transition: transform 150ms var(--ease-out);
+}
+
+.switch[aria-checked='true'] .switch-thumb {
+    transform: translateX(14px);
+}
+
+.segmented {
+    display: inline-flex;
+    gap: 2px;
+    padding: 2px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+}
+
+.segmented button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 26px;
+    padding: 0 var(--space-3);
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--ink-2);
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+        background-color 120ms var(--ease-out),
+        color 120ms var(--ease-out);
+}
+
+.segmented button:hover:not(:disabled) {
+    color: var(--ink);
+}
+
+.segmented button[aria-checked='true'] {
+    background: var(--selected);
+    color: var(--ink);
+}
+
+.segmented button:disabled {
+    cursor: not-allowed;
+}
+
+.swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.swatch {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+    border-radius: 50%;
+    cursor: pointer;
+    transition:
+        transform 120ms var(--ease-out),
+        box-shadow 120ms var(--ease-out);
+}
+
+.swatch:hover:not(:disabled) {
+    transform: scale(1.1);
+}
+
+.swatch[aria-checked='true'] {
+    box-shadow:
+        0 0 0 2px var(--bg),
+        0 0 0 4px var(--ink);
+}
+
+.swatch:disabled {
+    cursor: not-allowed;
+}
+
+/* "Theme default": an empty circle crossed out. */
+.swatch-none {
+    background: linear-gradient(
+        135deg,
+        transparent calc(50% - 1px),
+        var(--danger) calc(50% - 1px),
+        var(--danger) calc(50% + 1px),
+        transparent calc(50% + 1px)
+    );
+}

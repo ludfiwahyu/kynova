@@ -1,0 +1,255 @@
+/* Sign-in, invite, and first-workspace screens. */
+
+.auth {
+    display: grid;
+    place-items: center;
+    min-height: 100%;
+    padding: var(--space-4);
+    background: var(--panel);
+}
+
+.auth-card {
+    display: grid;
+    gap: var(--space-3);
+    width: min(400px, 100%);
+    padding: var(--space-8) var(--space-6) var(--space-6);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg);
+}
+
+.auth-card h1 {
+    margin-top: var(--space-2);
+    font-size: var(--text-xl);
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+}
+
+.auth-card .button {
+    height: 34px;
+}
+
+.auth-card .button.primary {
+    margin-top: var(--space-2);
+}
+
+.auth-switch {
+    margin-top: var(--space-2);
+    text-align: center;
+}
+
+.auth-switch button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.auth-form {
+    display: grid;
+    gap: var(--space-3);
+}
+
+/* The database the account belongs to, above the sign-in fields. */
+.auth-database {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+}
+
+.auth-database .truncate {
+    flex: 1;
+    color: var(--ink);
+}
+
+/* ── Database picker (sign-in and the top bar's Database dialog) ────── */
+
+.db-picker {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.db-intro {
+    margin-bottom: var(--space-3);
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+}
+
+.db-choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+}
+
+.db-choice {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    color: var(--ink-2);
+    text-align: left;
+    cursor: pointer;
+    transition:
+        border-color 120ms var(--ease-out),
+        background 120ms var(--ease-out);
+}
+
+.db-choice > svg {
+    flex: none;
+    margin-top: 1px;
+}
+
+.db-choice span {
+    display: grid;
+    gap: 2px;
+    font-size: var(--text-xs);
+    line-height: 1.45;
+}
+
+.db-choice strong {
+    color: var(--ink);
+    font-size: var(--text-sm);
+    font-weight: 600;
+}
+
+.db-choice:hover {
+    border-color: color-mix(in srgb, var(--ink) 30%, var(--line));
+}
+
+.db-choice[aria-checked='true'] {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, var(--bg));
+}
+
+.db-choice[aria-checked='true'] > svg {
+    color: var(--accent);
+}
+
+.db-choice:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+.db-form {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.db-form .select-field {
+    width: 100%;
+}
+
+.db-field-label,
+.db-label {
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+    font-weight: 600;
+}
+
+.db-recent {
+    display: grid;
+    gap: var(--space-1);
+}
+
+.db-recent-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.db-recent-use {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    height: 30px;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: var(--text-sm);
+    text-align: left;
+    cursor: pointer;
+}
+
+.db-recent-use:hover:not(:disabled) {
+    background: var(--hover);
+}
+
+.db-in-use {
+    margin-left: auto;
+    color: var(--get);
+    font-size: var(--text-xs);
+    font-weight: 600;
+}
+
+/* The connection string with its show/hide button inside. */
+.db-secret {
+    position: relative;
+    display: flex;
+}
+
+.db-secret .input {
+    padding-right: 36px;
+}
+
+.db-secret .icon-button {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    transform: translateY(-50%);
+}
+
+.db-hint,
+.field > .db-hint {
+    color: var(--ink-3);
+    font-size: var(--text-xs);
+    font-weight: 400;
+    line-height: 1.45;
+}
+
+.db-note,
+.db-result {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--get);
+    font-size: var(--text-sm);
+}
+
+.db-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+}
+
+.db-actions .button.primary {
+    margin-top: 0;
+}
+
+@media (max-width: 480px) {
+    .db-choices {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.db-status-group {
+    display: contents;
+}

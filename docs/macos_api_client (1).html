@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postlight API Client - macOS Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', "Segoe UI", 'Roboto', 'Helvetica', 'Arial', sans-serif],
+                        mono: ['SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'Droid Sans Mono', 'Source Code Pro', monospace]
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom macOS window chrome & scrollbar styling */
+        body {
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(150, 150, 150, 0.3);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(150, 150, 150, 0.5);
+        }
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-[#1e1e1e] text-zinc-200 dark:bg-[#1e1e1e] dark:text-zinc-200 bg-zinc-100 text-zinc-800 h-screen w-screen overflow-hidden flex flex-col font-sans transition-colors duration-300">
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed top-12 right-6 z-50 transform translate-y-[-200%] opacity-0 transition-all duration-300 bg-zinc-900/90 dark:bg-zinc-800/90 backdrop-blur-md text-white px-4 py-2.5 rounded-xl shadow-2xl border border-zinc-700/50 flex items-center space-x-3 text-sm">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toast-msg">Action successful</span>
+    </div>
+
+    <!-- macOS Window Titlebar -->
+    <header class="h-10 bg-zinc-200/80 dark:bg-[#282828]/80 glass-panel border-b border-zinc-300/50 dark:border-zinc-700/40 flex items-center justify-between px-3 select-none shrink-0 relative z-40">
+        <div class="flex items-center space-x-2">
+            <!-- Traffic Lights -->
+            <div class="flex items-center space-x-1.5 group">
+                <button onclick="windowClose()" class="w-3 h-3 rounded-full bg-[#FF5F56] border border-[#E0443E] flex items-center justify-center hover:opacity-80 transition-opacity focus:outline-none shadow-sm cursor-pointer">
+                    <span class="opacity-0 group-hover:opacity-100 text-[9px] text-zinc-800 font-bold leading-none">&times;</span>
+                </button>
+                <button onclick="windowMinimize()" class="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123] flex items-center justify-center hover:opacity-80 transition-opacity focus:outline-none shadow-sm cursor-pointer">
+                    <span class="opacity-0 group-hover:opacity-100 text-[9px] text-zinc-800 font-bold leading-none">-</span>
+                </button>
+                <button onclick="windowMaximize()" class="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29] flex items-center justify-center hover:opacity-80 transition-opacity focus:outline-none shadow-sm cursor-pointer">
+                    <span class="opacity-0 group-hover:opacity-100 text-[8px] text-zinc-800 font-bold leading-none">+</span>
+                </button>
+            </div>
+            <div class="h-4 w-[1px] bg-zinc-300 dark:bg-zinc-700 ml-2"></div>
+            <!-- Workspace Switcher -->
+            <div class="flex items-center space-x-1.5 px-2 py-1 rounded-md hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer text-xs font-medium transition-colors">
+                <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-500"></i>
+                <span class="font-semibold text-zinc-800 dark:text-zinc-200">Production Workspace</span>
+                <i data-lucide="chevron-down" class="w-3 h-3 text-zinc-400"></i>
+            </div>
+        </div>
+
+        <!-- Center Title -->
+        <div class="absolute left-1/2 transform -translate-x-1/2 text-xs font-medium text-zinc-600 dark:text-zinc-400 flex items-center space-x-1.5">
+            <span id="window-title-badge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">GET</span>
+            <span id="window-title-text" class="truncate max-w-[200px]">Auth Login Endpoint</span>
+        </div>
+
+        <!-- Right Controls -->
+        <div class="flex items-center space-x-3 text-zinc-600 dark:text-zinc-400">
+            <button onclick="toggleTheme()" class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors" title="Toggle Theme">
+                <i id="theme-icon" data-lucide="moon" class="w-4 h-4"></i>
+            </button>
+            <button onclick="showToast('Environment Synced Successfully')" class="flex items-center space-x-1 text-xs px-2 py-1 rounded-md bg-zinc-300/60 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="font-medium text-zinc-700 dark:text-zinc-300">Synced</span>
+            </button>
+            <button onclick="showToast('Opened Settings Modal')" class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- App Body Layout -->
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-72 bg-zinc-200/50 dark:bg-[#232323]/70 glass-panel border-r border-zinc-300/50 dark:border-zinc-700/40 flex flex-col select-none shrink-0">
+            <!-- Sidebar Header & Search -->
+            <div class="p-3 border-b border-zinc-300/50 dark:border-zinc-700/40 space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Collections</span>
+                    <div class="flex items-center space-x-1">
+                        <button onclick="newCollectionModal()" class="p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-white transition" title="New Collection">
+                            <i data-lucide="folder-plus" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="newRequestModal()" class="p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-white transition" title="New Request">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-zinc-400 absolute left-2.5 top-2.5"></i>
+                    <input type="text" id="sidebar-search" oninput="filterCollections(this.value)" placeholder="Filter collections..." class="w-full bg-zinc-100 dark:bg-[#1a1a1a] text-xs rounded-lg pl-8 pr-3 py-1.5 border border-zinc-300/60 dark:border-zinc-700/60 focus:outline-none focus:border-indigo-500 text-zinc-800 dark:text-zinc-200 placeholder-zinc-400">
+                </div>
+            </div>
+
+            <!-- Collections Tree View -->
+            <div id="collections-tree" class="flex-1 overflow-y-auto p-2 space-y-1 text-xs">
+                <!-- Dynamically rendered via JS -->
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="p-2.5 border-t border-zinc-300/50 dark:border-zinc-700/40 flex items-center justify-between text-zinc-500 dark:text-zinc-400 text-xs">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="database" class="w-3.5 h-3.5 text-indigo-400"></i>
+                    <span class="truncate">Local SQLite DB</span>
+                </div>
+                <span class="text-[10px] bg-zinc-300 dark:bg-zinc-800 px-1.5 py-0.5 rounded font-mono">v2.4.0</span>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="flex-1 flex flex-col bg-zinc-50 dark:bg-[#1a1a1a] overflow-hidden relative">
+            
+            <!-- Tabs Bar -->
+            <div id="tabs-bar" class="h-10 bg-zinc-200/30 dark:bg-[#202020] border-b border-zinc-300/50 dark:border-zinc-700/40 flex items-center px-2 space-x-1 overflow-x-auto shrink-0">
+                <!-- Dynamically populated tabs -->
+            </div>
+
+            <!-- Request & Response Split / Container -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                
+                <!-- Request Builder Section -->
+                <div class="p-4 border-b border-zinc-300/50 dark:border-zinc-700/40 bg-white/40 dark:bg-[#222222]/50 backdrop-blur-sm shrink-0 space-y-3">
+                    <!-- URL Bar & Method Selector -->
+                    <div class="flex items-center space-x-2">
+                        <div class="relative">
+                            <select id="req-method" onchange="updateMethodColor(this)" class="bg-zinc-200 dark:bg-[#2c2c2c] text-xs font-bold rounded-lg px-3 py-2 pr-8 border border-zinc-300 dark:border-zinc-700 focus:outline-none cursor-pointer appearance-none text-emerald-600 dark:text-emerald-400">
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                                <option value="PUT">PUT</option>
+                                <option value="DELETE">DELETE</option>
+                                <option value="PATCH">PATCH</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-2.5 pointer-events-none"></i>
+                        </div>
+
+                        <div class="flex-1 relative flex items-center">
+                            <input type="text" id="req-url" value="https://api.postlight.io/v1/auth/login" placeholder="Enter request URL or paste curl command..." class="w-full bg-zinc-100 dark:bg-[#181818] text-xs font-mono rounded-lg pl-3 pr-24 py-2 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-zinc-900 dark:text-zinc-100 shadow-inner">
+                            <div class="absolute right-1.5 flex items-center space-x-1">
+                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-500 font-mono hidden sm:inline-block">Ctrl+Enter</span>
+                            </div>
+                        </div>
+
+                        <button onclick="sendRequest()" id="send-btn" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold px-5 py-2 rounded-lg text-xs shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-1.5 cursor-pointer">
+                            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                            <span>Send</span>
+                        </button>
+                        <button onclick="saveCurrentRequest()" class="p-2 rounded-lg bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 transition" title="Save Request">
+                            <i data-lucide="bookmark" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Request Sub-tabs (Params, Auth, Headers, Body, Script) -->
+                    <div class="flex items-center space-x-1 border-b border-zinc-300/40 dark:border-zinc-800 text-xs">
+                        <button onclick="switchReqTab('params')" id="btn-tab-params" class="px-3 py-1.5 font-medium border-b-2 border-indigo-500 text-indigo-600 dark:text-indigo-400 transition-colors flex items-center space-x-1">
+                            <span>Params</span>
+                            <span id="params-badge" class="ml-1 w-4 h-4 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 text-[10px] flex items-center justify-center font-bold">1</span>
+                        </button>
+                        <button onclick="switchReqTab('auth')" id="btn-tab-auth" class="px-3 py-1.5 font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors flex items-center space-x-1">
+                            <span>Auth</span>
+                            <span class="px-1 py-0.2 rounded bg-amber-500/20 text-amber-500 text-[9px] font-semibold">Bearer</span>
+                        </button>
+                        <button onclick="switchReqTab('headers')" id="btn-tab-headers" class="px-3 py-1.5 font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors flex items-center space-x-1">
+                            <span>Headers</span>
+                            <span id="headers-badge" class="ml-1 w-4 h-4 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-[10px] flex items-center justify-center font-bold">2</span>
+                        </button>
+                        <button onclick="switchReqTab('body')" id="btn-tab-body" class="px-3 py-1.5 font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors flex items-center space-x-1">
+                            <span>Body</span>
+                            <span class="px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-500 text-[9px] font-semibold">JSON</span>
+                        </button>
+                        <button onclick="switchReqTab('scripts')" id="btn-tab-scripts" class="px-3 py-1.5 font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">
+                            <span>Scripts</span>
+                        </button>
+                    </div>
+
+                    <!-- Request Sub-tab Content Panels -->
+                    <div id="panel-params" class="req-sub-panel space-y-2 pt-1 max-h-36 overflow-y-auto">
+                        <div class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium pb-1 flex justify-between items-center">
+                            <span>Query Parameters</span>
+                            <button onclick="addParamRow()" class="text-indigo-500 hover:underline flex items-center space-x-0.5"><i data-lucide="plus" class="w-3 h-3"></i><span>Add Param</span></button>
+                        </div>
+                        <div id="params-list" class="space-y-1.5">
+                            <!-- Dynamic rows -->
+                        </div>
+                    </div>
+
+                    <div id="panel-auth" class="req-sub-panel hidden space-y-3 pt-1">
+                        <div class="flex items-center space-x-3 text-xs">
+                            <span class="text-zinc-500 w-24">Type:</span>
+                            <select class="bg-zinc-100 dark:bg-[#1a1a1a] rounded px-2 py-1 border border-zinc-300 dark:border-zinc-700 text-xs">
+                                <option>Bearer Token</option>
+                                <option>Basic Auth</option>
+                                <option>API Key</option>
+                                <option>OAuth 2.0</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center space-x-3 text-xs">
+                            <span class="text-zinc-500 w-24">Token:</span>
+                            <input type="password" value="plt_live_893b2810a9c84e29b01" class="flex-1 bg-zinc-100 dark:bg-[#1a1a1a] rounded px-2.5 py-1.5 border border-zinc-300 dark:border-zinc-700 font-mono text-xs">
+                        </div>
+                    </div>
+
+                    <div id="panel-headers" class="req-sub-panel hidden space-y-2 pt-1 max-h-36 overflow-y-auto">
+                        <div class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium pb-1 flex justify-between items-center">
+                            <span>Request Headers</span>
+                            <button onclick="addHeaderRow()" class="text-indigo-500 hover:underline flex items-center space-x-0.5"><i data-lucide="plus" class="w-3 h-3"></i><span>Add Header</span></button>
+                        </div>
+                        <div id="headers-list" class="space-y-1.5">
+                            <!-- Dynamic rows -->
+                        </div>
+                    </div>
+
+                    <div id="panel-body" class="req-sub-panel hidden space-y-2 pt-1">
+                        <div class="flex items-center justify-between text-[11px]">
+                            <div class="flex items-center space-x-2">
+                                <label class="flex items-center space-x-1 cursor-pointer"><input type="radio" name="body-type" checked class="text-indigo-600"><span>json</span></label>
+                                <label class="flex items-center space-x-1 cursor-pointer"><input type="radio" name="body-type" class="text-indigo-600"><span>form-data</span></label>
+                                <label class="flex items-center space-x-1 cursor-pointer"><input type="radio" name="body-type" class="text-indigo-600"><span>raw</span></label>
+                            </div>
+                            <button onclick="formatJSONBody()" class="text-indigo-500 hover:underline flex items-center space-x-1"><i data-lucide="code" class="w-3 h-3"></i><span>Beautify JSON</span></button>
+                        </div>
+                        <textarea id="req-body-content" rows="4" class="w-full bg-zinc-100 dark:bg-[#161616] text-xs font-mono rounded-lg p-2.5 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-zinc-900 dark:text-zinc-200">{\n  "email": "developer@postlight.app",\n  "scope": "workspace:admin"\n}</textarea>
+                    </div>
+
+                    <div id="panel-scripts" class="req-sub-panel hidden space-y-2 pt-1">
+                        <p class="text-[11px] text-zinc-500">Write JavaScript pre-request scripts or test assertions using Postlight Test Runner API.</p>
+                        <textarea rows="4" class="w-full bg-zinc-100 dark:bg-[#161616] text-xs font-mono rounded-lg p-2.5 border border-zinc-300 dark:border-zinc-700 focus:outline-none text-zinc-900 dark:text-zinc-200">pm.test("Status code is 200", function () {\n    pm.response.to.have.status(200);\n});</textarea>
+                    </div>
+                </div>
+
+                <!-- Response Viewer Section -->
+                <div class="flex-1 flex flex-col bg-zinc-100 dark:bg-[#181818] overflow-hidden">
+                    <!-- Response Toolbar -->
+                    <div class="px-4 py-2 bg-zinc-200/50 dark:bg-[#202020] border-b border-zinc-300/50 dark:border-zinc-700/40 flex items-center justify-between text-xs shrink-0">
+                        <div class="flex items-center space-x-4">
+                            <span class="font-semibold text-zinc-700 dark:text-zinc-300">Response</span>
+                            <div class="flex items-center space-x-2">
+                                <span id="res-status" class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    <span>200 OK</span>
+                                </span>
+                                <span id="res-time" class="text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">142 ms</span>
+                                <span id="res-size" class="text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">1.2 KB</span>
+                            </div>
+                        </div>
+
+                        <!-- Response View Modes & Actions -->
+                        <div class="flex items-center space-x-3">
+                            <div class="flex bg-zinc-300/60 dark:bg-zinc-800 p-0.5 rounded-lg">
+                                <button onclick="setResTab('body')" id="res-tab-body" class="px-2.5 py-1 rounded-md font-medium bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm transition">Body</button>
+                                <button onclick="setResTab('headers')" id="res-tab-headers" class="px-2.5 py-1 rounded-md font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 transition">Headers (12)</button>
+                                <button onclick="setResTab('cookies')" id="res-tab-cookies" class="px-2.5 py-1 rounded-md font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 transition">Cookies</button>
+                            </div>
+                            <div class="h-4 w-[1px] bg-zinc-300 dark:bg-zinc-700"></div>
+                            <button onclick="copyResponse()" class="p-1.5 rounded hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400 transition" title="Copy Raw Response">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="showToast('Response exported as JSON')" class="p-1.5 rounded hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400 transition" title="Export">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Response Content Output Area -->
+                    <div class="flex-1 p-4 overflow-auto font-mono text-xs relative">
+                        <!-- Loading spinner overlay -->
+                        <div id="response-loader" class="absolute inset-0 bg-zinc-900/20 dark:bg-black/40 backdrop-blur-xs flex items-center justify-center hidden z-10">
+                            <div class="flex flex-col items-center space-y-2 bg-white dark:bg-zinc-900 px-6 py-4 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800">
+                                <div class="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                                <span class="text-xs font-sans font-medium text-zinc-600 dark:text-zinc-300">Sending request...</span>
+                            </div>
+                        </div>
+
+                        <!-- Body View Content -->
+                        <div id="res-content-body" class="text-zinc-800 dark:text-zinc-200 whitespace-pre leading-relaxed"></div>
+                        
+                        <!-- Headers View Content -->
+                        <div id="res-content-headers" class="hidden space-y-1 font-sans text-xs">
+                            <div class="grid grid-cols-3 font-semibold text-zinc-500 pb-1 border-b border-zinc-300 dark:border-zinc-800">
+                                <span>Header Key</span>
+                                <span class="col-span-2">Value</span>
+                            </div>
+                            <div class="grid grid-cols-3 py-1 border-b border-zinc-200 dark:border-zinc-800/50"><span class="font-mono text-indigo-500">content-type</span><span class="col-span-2 font-mono">application/json; charset=utf-8</span></div>
+                            <div class="grid grid-cols-3 py-1 border-b border-zinc-200 dark:border-zinc-800/50"><span class="font-mono text-indigo-500">cache-control</span><span class="col-span-2 font-mono">no-store, max-age=0</span></div>
+                            <div class="grid grid-cols-3 py-1 border-b border-zinc-200 dark:border-zinc-800/50"><span class="font-mono text-indigo-500">strict-transport-security</span><span class="col-span-2 font-mono">max-age=31536000; includeSubDomains</span></div>
+                            <div class="grid grid-cols-3 py-1 border-b border-zinc-200 dark:border-zinc-800/50"><span class="font-mono text-indigo-500">x-ratelimit-remaining</span><span class="col-span-2 font-mono">4987</span></div>
+                            <div class="grid grid-cols-3 py-1 border-b border-zinc-200 dark:border-zinc-800/50"><span class="font-mono text-indigo-500">x-request-id</span><span class="col-span-2 font-mono">req_9281a8b29f7c</span></div>
+                        </div>
+
+                        <!-- Cookies View Content -->
+                        <div id="res-content-cookies" class="hidden space-y-1 font-sans text-xs">
+                            <div class="grid grid-cols-4 font-semibold text-zinc-500 pb-1 border-b border-zinc-300 dark:border-zinc-800">
+                                <span>Name</span>
+                                <span class="col-span-2">Value</span>
+                                <span>Expires</span>
+                            </div>
+                            <div class="grid grid-cols-4 py-1 border-b border-zinc-200 dark:border-zinc-800/50"><span class="font-mono text-indigo-500">plt_session</span><span class="col-span-2 font-mono truncate">s%3A72981bc8931a...</span><span class="text-zinc-400">Session</span></div>
+                            <div class="grid grid-cols-4 py-1 border-b border-zinc-200 dark:border-zinc-800/50"><span class="font-mono text-indigo-500">csrf_token</span><span class="col-span-2 font-mono truncate">8b9c2810a9c84e29b</span><span class="text-zinc-400">In 2 hours</span></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Sample App State
+        let state = {
+            darkMode: true,
+            activeTabId: 'req-1',
+            collections: [
+                {
+                    id: 'col-1',
+                    name: 'Authentication API',
+                    open: true,
+                    requests: [
+                        { id: 'req-1', method: 'POST', name: 'Auth Login', url: 'https://api.postlight.io/v1/auth/login' },
+                        { id: 'req-2', method: 'POST', name: 'Refresh Token', url: 'https://api.postlight.io/v1/auth/refresh' },
+                        { id: 'req-3', method: 'DELETE', name: 'Revoke Session', url: 'https://api.postlight.io/v1/auth/logout' }
+                    ]
+                },
+                {
+                    id: 'col-2',
+                    name: 'User Management',
+                    open: false,
+                    requests: [
+                        { id: 'req-4', method: 'GET', name: 'List All Users', url: 'https://api.postlight.io/v1/users?limit=20' },
+                        { id: 'req-5', method: 'POST', name: 'Create User Profile', url: 'https://api.postlight.io/v1/users' },
+                        { id: 'req-6', method: 'PUT', name: 'Update User Settings', url: 'https://api.postlight.io/v1/users/usr_8921' }
+                    ]
+                },
+                {
+                    id: 'col-3',
+                    name: 'Billing & Subscriptions',
+                    open: false,
+                    requests: [
+                        { id: 'req-7', method: 'GET', name: 'Get Active Subscription', url: 'https://api.postlight.io/v1/billing/subscription' },
+                        { id: 'req-8', method: 'POST', name: 'Create Checkout Session', url: 'https://api.postlight.io/v1/billing/checkout' }
+                    ]
+                }
+            ],
+            params: [
+                { key: 'include_metadata', value: 'true', desc: 'Return user role and timestamps' }
+            ],
+            headers: [
+                { key: 'Content-Type', value: 'application/json', desc: '' },
+                { key: 'Authorization', value: 'Bearer plt_live_893b...', desc: '' }
+            ],
+            sampleResponses: {
+                'POST': '{\n  "status": "success",\n  "code": 200,\n  "message": "Authentication successful",\n  "data": {\n    "token": "plt_live_982b182749a8bc9281a029",\n    "expires_in": 86400,\n    "user": {\n      "id": "usr_9281a",\n      "email": "developer@postlight.app",\n      "role": "Administrator"\n    }\n  }\n}',
+                'GET': '{\n  "object": "list",\n  "data": [\n    { "id": "usr_1", "name": "Alexander Wright", "status": "active" },\n    { "id": "usr_2", "name": "Victoria Chen", "status": "pending" },\n    { "id": "usr_3", "name": "Marcus Vance", "status": "active" }\n  ],\n  "has_more": false,\n  "total_count": 3\n}',
+                'PUT': '{\n  "status": "success",\n  "updated_at": "2026-03-30T14:22:10Z",\n  "affected_rows": 1\n}',
+                'DELETE': '{\n  "status": "success",\n  "deleted": true,\n  "timestamp": 1743344530\n}'
+            }
+        };
+
+        // Initialize UI on load
+        window.onload = function() {
+            renderCollections();
+            renderTabs();
+            renderParams();
+            renderHeaders();
+            loadResponseOutput('POST');
+        };
+
+        // Theme Toggle
+        function toggleTheme() {
+            state.darkMode = !state.darkMode;
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (state.darkMode) {
+                html.classList.add('dark');
+                icon.setAttribute('data-lucide', 'moon');
+            } else {
+                html.classList.remove('dark');
+                icon.setAttribute('data-lucide', 'sun');
+            }
+            lucide.createIcons();
+            showToast(state.darkMode ? 'Dark theme enabled' : 'Light theme enabled');
+        }
+
+        // Render Collections Sidebar Tree
+        function renderCollections(filter = '') {
+            const container = document.getElementById('collections-tree');
+            container.innerHTML = '';
+
+            state.collections.forEach(col => {
+                const matchesFilter = col.name.toLowerCase().includes(filter.toLowerCase()) || 
+                    col.requests.some(r => r.name.toLowerCase().includes(filter.toLowerCase()) || r.url.toLowerCase().includes(filter.toLowerCase()));
+                
+                if (filter && !matchesFilter) return;
+
+                const colEl = document.createElement('div');
+                colEl.className = 'space-y-0.5';
+
+                // Collection header
+                const header = document.createElement('div');
+                header.className = 'flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer text-zinc-700 dark:text-zinc-300 font-medium';
+                header.onclick = () => { col.open = !col.open; renderCollections(filter); };
+                
+                header.innerHTML = `
+                    <div class="flex items-center space-x-2 truncate">
+                        <i data-lucide="${col.open ? 'chevron-down' : 'chevron-right'}" class="w-3.5 h-3.5 text-zinc-400 shrink-0"></i>
+                        <i data-lucide="folder" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
+                        <span class="truncate">${col.name}</span>
+                    </div>
+                    <span class="text-[10px] text-zinc-400 bg-zinc-200 dark:bg-zinc-800 px-1.5 py-0.2 rounded-full">${col.requests.length}</span>
+                `;
+                colEl.appendChild(header);
+
+                // Requests container
+                if (col.open) {
+                    const reqContainer = document.createElement('div');
+                    reqContainer.className = 'pl-5 space-y-0.5 border-l border-zinc-300/40 dark:border-zinc-800 ml-3 my-1';
+
+                    col.requests.forEach(req => {
+                        if (filter && !req.name.toLowerCase().includes(filter.toLowerCase()) && !col.name.toLowerCase().includes(filter.toLowerCase())) return;
+
+                        const isActive = req.id === state.activeTabId;
+                        const reqEl = document.createElement('div');
+                        reqEl.className = `flex items-center justify-between px-2 py-1.5 rounded-lg cursor-pointer text-xs transition-colors ${isActive ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-semibold' : 'hover:bg-black/5 dark:hover:bg-white/5 text-zinc-600 dark:text-zinc-400'}`;
+                        reqEl.onclick = () => selectRequest(req);
+
+                        const methodColor = getMethodColorClass(req.method);
+
+                        reqEl.innerHTML = `
+                            <div class="flex items-center space-x-2 truncate">
+                                <span class="text-[10px] font-bold font-mono px-1 rounded ${methodColor}">${req.method}</span>
+                                <span class="truncate">${req.name}</span>
+                            </div>
+                        `;
+                        reqContainer.appendChild(reqEl);
+                    });
+                    colEl.appendChild(reqContainer);
+                }
+
+                container.appendChild(colEl);
+            });
+            lucide.createIcons();
+        }
+
+        function getMethodColorClass(method) {
+            switch(method) {
+                case 'GET': return 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400';
+                case 'POST': return 'bg-amber-500/20 text-amber-600 dark:text-amber-400';
+                case 'PUT': return 'bg-blue-500/20 text-blue-600 dark:text-blue-400';
+                case 'DELETE': return 'bg-rose-500/20 text-rose-600 dark:text-rose-400';
+                default: return 'bg-purple-500/20 text-purple-600 dark:text-purple-400';
+            }
+        }
+
+        // Filter Collections
+        function filterCollections(query) {
+            renderCollections(query);
+        }
+
+        // Tabs Management
+        function renderTabs() {
+            const bar = document.getElementById('tabs-bar');
+            bar.innerHTML = '';
+
+            // Find current active request info across collections
+            let currentReq = null;
+            state.collections.forEach(c => {
+                const found = c.requests.find(r => r.id === state.activeTabId);
+                if (found) currentReq = found;
+            });
+
+            // We will render quick tabs for recently opened requests
+            const openTabs = [
+                { id: 'req-1', name: 'Auth Login', method: 'POST' },
+                { id: 'req-4', name: 'List All Users', method: 'GET' },
+                { id: 'req-7', name: 'Get Active Subscription', method: 'GET' }
+            ];
+
+            openTabs.forEach(tab => {
+                const isActive = tab.id === state.activeTabId;
+                const tabEl = document.createElement('div');
+                tabEl.className = `flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs cursor-pointer border transition-all ${isActive ? 'bg-white dark:bg-[#1a1a1a] border-zinc-300 dark:border-zinc-700 shadow-xs font-semibold text-zinc-900 dark:text-white' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5'}`;
+                tabEl.onclick = () => {
+                    state.activeTabId = tab.id;
+                    const found = findRequestById(tab.id);
+                    if (found) {
+                        document.getElementById('req-method').value = found.method;
+                        document.getElementById('req-url').value = found.url;
+                        updateMethodColor(document.getElementById('req-method'));
+                        updateWindowTitle(found.method, found.name);
+                        loadResponseOutput(found.method);
+                    }
+                    renderTabs();
+                    renderCollections();
+                };
+
+                const methodColor = getMethodColorClass(tab.method);
+                tabEl.innerHTML = `
+                    <span class="text-[9px] font-bold font-mono px-1 rounded ${methodColor}">${tab.method}</span>
+                    <span class="truncate max-w-[120px]">${tab.name}</span>
+                    <button onclick="event.stopPropagation(); showToast('Closed tab')" class="p-0.5 rounded-full hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                `;
+                bar.appendChild(tabEl);
+            });
+            lucide.createIcons();
+        }
+
+        function findRequestById(id) {
+            for (let c of state.collections) {
+                const r = c.requests.find(req => req.id === id);
+                if (r) return r;
+            }
+            return null;
+        }
+
+        function selectRequest(req) {
+            state.activeTabId = req.id;
+            document.getElementById('req-method').value = req.method;
+            document.getElementById('req-url').value = req.url;
+            updateMethodColor(document.getElementById('req-method'));
+            updateWindowTitle(req.method, req.name);
+            loadResponseOutput(req.method);
+            renderCollections();
+            renderTabs();
+        }
+
+        function updateWindowTitle(method, name) {
+            document.getElementById('window-title-badge').innerText = method;
+            document.getElementById('window-title-text').innerText = name;
+        }
+
+        function updateMethodColor(selectEl) {
+            const val = selectEl.value;
+            selectEl.className = 'bg-zinc-200 dark:bg-[#2c2c2c] text-xs font-bold rounded-lg px-3 py-2 pr-8 border border-zinc-300 dark:border-zinc-700 focus:outline-none cursor-pointer appearance-none ' + 
+                (val === 'GET' ? 'text-emerald-500' : val === 'POST' ? 'text-amber-500' : val === 'PUT' ? 'text-blue-500' : 'text-rose-500');
+        }
+
+        // Sub-tabs in Request Section
+        function switchReqTab(tabName) {
+            document.querySelectorAll('.req-sub-panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById('panel-' + tabName).classList.remove('hidden');
+
+            // Update tab styles
+            ['params', 'auth', 'headers', 'body', 'scripts'].forEach(t => {
+                const btn = document.getElementById('btn-tab-' + t);
+                if (!btn) return;
+                if (t === tabName) {
+                    btn.className = 'px-3 py-1.5 font-medium border-b-2 border-indigo-500 text-indigo-600 dark:text-indigo-400 transition-colors flex items-center space-x-1';
+                } else {
+                    btn.className = 'px-3 py-1.5 font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors flex items-center space-x-1';
+                }
+            });
+        }
+
+        // Params & Headers Table Dynamic Rows
+        function renderParams() {
+            const list = document.getElementById('params-list');
+            list.innerHTML = '';
+            state.params.forEach((p, idx) => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center space-x-2';
+                row.innerHTML = `
+                    <input type="checkbox" checked class="rounded text-indigo-600 focus:ring-0">
+                    <input type="text" value="${p.key}" placeholder="Key" class="flex-1 bg-zinc-100 dark:bg-[#1a1a1a] text-xs font-mono rounded px-2 py-1 border border-zinc-300 dark:border-zinc-700">
+                    <input type="text" value="${p.value}" placeholder="Value" class="flex-1 bg-zinc-100 dark:bg-[#1a1a1a] text-xs font-mono rounded px-2 py-1 border border-zinc-300 dark:border-zinc-700">
+                    <input type="text" value="${p.desc}" placeholder="Description" class="flex-1 bg-zinc-100 dark:bg-[#1a1a1a] text-xs rounded px-2 py-1 border border-zinc-300 dark:border-zinc-700">
+                    <button onclick="removeParam(${idx})" class="p-1 text-zinc-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                `;
+                list.appendChild(row);
+            });
+            document.getElementById('params-badge').innerText = state.params.length;
+            lucide.createIcons();
+        }
+
+        function addParamRow() {
+            state.params.push({ key: '', value: '', desc: '' });
+            renderParams();
+        }
+
+        function removeParam(idx) {
+            state.params.splice(idx, 1);
+            renderParams();
+        }
+
+        function renderHeaders() {
+            const list = document.getElementById('headers-list');
+            list.innerHTML = '';
+            state.headers.forEach((h, idx) => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center space-x-2';
+                row.innerHTML = `
+                    <input type="checkbox" checked class="rounded text-indigo-600 focus:ring-0">
+                    <input type="text" value="${h.key}" placeholder="Key" class="flex-1 bg-zinc-100 dark:bg-[#1a1a1a] text-xs font-mono rounded px-2 py-1 border border-zinc-300 dark:border-zinc-700">
+                    <input type="text" value="${h.value}" placeholder="Value" class="flex-1 bg-zinc-100 dark:bg-[#1a1a1a] text-xs font-mono rounded px-2 py-1 border border-zinc-300 dark:border-zinc-700">
+                    <button onclick="removeHeader(${idx})" class="p-1 text-zinc-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                `;
+                list.appendChild(row);
+            });
+            document.getElementById('headers-badge').innerText = state.headers.length;
+            lucide.createIcons();
+        }
+
+        function addHeaderRow() {
+            state.headers.push({ key: '', value: '', desc: '' });
+            renderHeaders();
+        }
+
+        function removeHeader(idx) {
+            state.headers.splice(idx, 1);
+            renderHeaders();
+        }
+
+        // Send Request Simulation
+        function sendRequest() {
+            const loader = document.getElementById('response-loader');
+            loader.classList.remove('hidden');
+
+            const method = document.getElementById('req-method').value;
+
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                loadResponseOutput(method);
+                showToast('Request completed successfully (200 OK)');
+            }, 600);
+        }
+
+        function loadResponseOutput(method) {
+            const content = state.sampleResponses[method] || state.sampleResponses['GET'];
+            document.getElementById('res-content-body').innerText = content;
+            
+            // Randomize timing slightly for realism
+            const time = Math.floor(Math.random() * 120) + 68;
+            document.getElementById('res-time').innerText = time + ' ms';
+        }
+
+        function formatJSONBody() {
+            try {
+                const textarea = document.getElementById('req-body-content');
+                const parsed = JSON.parse(textarea.value);
+                textarea.value = JSON.stringify(parsed, null, 2);
+                showToast('JSON formatted successfully');
+            } catch (e) {
+                showToast('Invalid JSON syntax');
+            }
+        }
+
+        // Response View Tabs
+        function setResTab(tab) {
+            ['body', 'headers', 'cookies'].forEach(t => {
+                document.getElementById('res-content-' + t).classList.add('hidden');
+                document.getElementById('res-tab-' + t).className = 'px-2.5 py-1 rounded-md font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 transition';
+            });
+            document.getElementById('res-content-' + tab).classList.remove('hidden');
+            document.getElementById('res-tab-' + tab).className = 'px-2.5 py-1 rounded-md font-medium bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm transition';
+        }
+
+        function copyResponse() {
+            const text = document.getElementById('res-content-body').innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('Response copied to clipboard');
+        }
+
+        // Modals & Window action placeholders
+        function newCollectionModal() {
+            const name = prompt('Enter new collection name:');
+            if (name) {
+                state.collections.push({ id: 'col-' + Date.now(), name, open: true, requests: [] });
+                renderCollections();
+                showToast('Collection created');
+            }
+        }
+
+        function newRequestModal() {
+            if (state.collections.length === 0) {
+                alert('Please create a collection first.');
+                return;
+            }
+            const name = prompt('Enter request name:');
+            if (name) {
+                state.collections[0].requests.push({ id: 'req-' + Date.now(), method: 'GET', name, url: 'https://api.postlight.io/v1/new' });
+                renderCollections();
+                showToast('New request created');
+            }
+        }
+
+        function saveCurrentRequest() {
+            showToast('Request saved to collection');
+        }
+
+        function windowClose() {
+            showToast('macOS window close prevented in browser');
+        }
+        function windowMinimize() {
+            showToast('macOS window minimize prevented in browser');
+        }
+        function windowMaximize() {
+            showToast('macOS window fullscreen toggled');
+        }
+
+        // Toast Notification Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-[-200%]', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-[-200%]', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

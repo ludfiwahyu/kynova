@@ -1,0 +1,59 @@
+/*
+ * Tailwind, fitted around the existing stylesheets so nothing changes on screen:
+ *
+ * - No Preflight: the reset in base.css stays the reset.
+ * - Utilities sit in a cascade layer, under the existing (unlayered) rules. A class such
+ *   as `p-4` styles new markup; on an element an existing rule already styles, that rule
+ *   wins. CodeMirror's own styles are unlayered too, so the editor keeps its look.
+ * - Colours and fonts are the design tokens (tokens.css), so `bg-raised`, `text-ink-2`,
+ *   `border-line`, `text-accent`, `font-sans` and `font-mono` follow the theme and the
+ *   font settings. Tailwind's own colour palette is switched off.
+ */
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities) source('../..');
+/* index.html too: the root element carries `font-sans`. */
+@source '../../../index.html';
+
+@theme inline {
+    --font-sans: var(--font-ui);
+    --font-mono: var(--font-code);
+
+    --color-*: initial;
+    --color-transparent: transparent;
+    --color-current: currentColor;
+
+    --color-bg: var(--bg);
+    --color-panel: var(--panel);
+    --color-raised: var(--raised);
+    --color-rail: var(--rail);
+    --color-rail-ink: var(--rail-ink);
+    --color-line: var(--line);
+    --color-ink: var(--ink);
+    --color-ink-2: var(--ink-2);
+    --color-ink-3: var(--ink-3);
+    --color-accent: var(--accent);
+    --color-accent-ink: var(--accent-ink);
+    --color-accent-soft: var(--accent-soft);
+    --color-hover: var(--hover);
+    --color-selected: var(--selected);
+
+    --color-ok: var(--ok);
+    --color-warn: var(--warn);
+    --color-danger: var(--danger);
+
+    --color-get: var(--get);
+    --color-post: var(--post);
+    --color-put: var(--put);
+    --color-patch: var(--patch);
+    --color-delete: var(--delete);
+    --color-options: var(--options);
+    --color-socket: var(--socket);
+
+    --radius-sm: var(--radius-sm);
+    --radius-md: var(--radius-md);
+    --radius-lg: var(--radius-lg);
+    --shadow-pop: var(--shadow-pop);
+    --ease-out: var(--ease-out);
+}

@@ -1,0 +1,42 @@
+# Builds the desktop app on real Macs and Windows PCs: the .dmg (Apple Silicon and Intel)
+# and the Windows installer, portable .exe and .zip. Run it from the Actions tab, or push
+# a tag such as v0.2.0. The files are under the run's Artifacts.
+#
+# The apps are not signed. Signing needs an Apple Developer ID and a Windows code-signing
+# certificate, given to electron-builder as secrets (see https://www.electron.build/code-signing).
+name: Desktop app
+
+on:
+    workflow_dispatch:
+    push:
+        tags: ['v*']
+
+jobs:
+    build:
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - os: macos-latest
+                      script: desktop:mac
+                    - os: windows-latest
+                      script: desktop:win
+        runs-on: ${{ matrix.os }}
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 26
+                  cache: npm
+            - run: npm ci
+            - run: npm test
+            - run: npm run ${{ matrix.script }}
+              env:
+                  CSC_IDENTITY_AUTO_DISCOVERY: false
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: kynova-${{ runner.os }}
+                  path: |
+                      release/*.dmg
+                      release/*.exe
+                      release/*.zip

@@ -1,0 +1,1 @@
+-- Row level security is a PostgreSQL feature (see postgres/0003). Nothing to do on SQLite.

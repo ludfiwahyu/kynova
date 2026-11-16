@@ -1,0 +1,310 @@
+/* App settings: a large dialog with the sections on the left. */
+
+.settings-dialog {
+    width: min(1040px, calc(100vw - 48px));
+    height: min(760px, calc(100vh - 48px));
+    max-width: none;
+    max-height: none;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg);
+    color: var(--ink);
+    box-shadow: var(--shadow-pop);
+}
+
+.settings-dialog[open] {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+}
+
+.settings-dialog::backdrop {
+    background: rgb(0 0 0 / 0.5);
+}
+
+.settings-nav {
+    display: grid;
+    align-content: start;
+    gap: 2px;
+    padding: var(--space-3);
+    border-right: 1px solid var(--line);
+    background: var(--panel);
+}
+
+.settings-nav button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    height: 36px;
+    padding: 0 var(--space-3);
+    border: 0;
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--ink-2);
+    font-size: var(--text-md);
+    text-align: left;
+    cursor: pointer;
+    transition:
+        background-color 120ms var(--ease-out),
+        color 120ms var(--ease-out);
+}
+
+.settings-nav button:hover {
+    background: var(--hover);
+    color: var(--ink);
+}
+
+.settings-nav button[aria-current='page'] {
+    background: var(--selected);
+    color: var(--ink);
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: none;
+    padding: var(--space-4) var(--space-4) var(--space-2) var(--space-6);
+}
+
+.settings-header h2 {
+    font-size: var(--text-xl);
+    font-weight: 650;
+    letter-spacing: -0.01em;
+}
+
+.settings-scroll {
+    flex: 1;
+    min-height: 0;
+    padding: 0 var(--space-6) var(--space-8);
+    overflow-y: auto;
+}
+
+.settings-intro {
+    max-width: 68ch;
+    margin-bottom: var(--space-4);
+    color: var(--ink-2);
+    line-height: 1.6;
+}
+
+.settings-group-title {
+    margin: var(--space-6) 0 0;
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--line);
+    font-size: var(--text-lg);
+    font-weight: 600;
+}
+
+.settings-group-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-3);
+    border-bottom: 1px solid var(--line);
+}
+
+.settings-group-heading .settings-group-title {
+    border-bottom: 0;
+}
+
+.settings-group-heading .button {
+    margin-bottom: var(--space-2);
+}
+
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    min-height: 56px;
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.setting-text {
+    min-width: 0;
+}
+
+.setting-label {
+    font-weight: 500;
+}
+
+.setting-description {
+    max-width: 62ch;
+    margin-top: 2px;
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+}
+
+.setting-control {
+    display: flex;
+    flex: none;
+    align-items: center;
+}
+
+.number-field {
+    width: 160px;
+    height: var(--control-height);
+    padding: 0 0 0 var(--space-3);
+}
+
+.number-field-unit {
+    display: grid;
+    place-items: center;
+    align-self: stretch;
+    padding: 0 var(--space-3);
+    border-left: 1px solid var(--line);
+    color: var(--ink-3);
+}
+
+/* The browser's spinner buttons do not fit the field. */
+.number-field input::-webkit-inner-spin-button,
+.number-field input::-webkit-outer-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+}
+
+.number-field input {
+    -moz-appearance: textfield;
+}
+
+.radio-choice {
+    display: flex;
+    gap: var(--space-4);
+}
+
+.radio-choice .radio {
+    font-size: var(--text-md);
+}
+
+/* ── Themes ──────────────────────────────────────────────────────────── */
+
+.theme-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-6);
+    margin-top: var(--space-6);
+}
+
+.theme-card {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.theme-card .select-field {
+    width: 100%;
+}
+
+.theme-card-heading {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.theme-card-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background: var(--selected);
+    color: var(--ink-2);
+}
+
+.theme-card .badge {
+    margin-left: 4px;
+    vertical-align: 1px;
+}
+
+/* ── Shortcuts ───────────────────────────────────────────────────────── */
+
+.shortcut-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: 44px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-sm);
+    color: var(--ink-2);
+}
+
+.shortcut-row:hover {
+    background: var(--hover);
+    color: var(--ink);
+}
+
+.shortcut-keys {
+    display: flex;
+    gap: 4px;
+}
+
+.shortcut-keys kbd {
+    min-width: 26px;
+    padding: 3px 6px;
+    border-color: transparent;
+    background: var(--selected);
+    color: var(--ink);
+    font-size: var(--text-sm);
+    text-align: center;
+}
+
+/* ── Account and About ───────────────────────────────────────────────── */
+
+.account-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.account-card .avatar {
+    width: 40px;
+    height: 40px;
+    font-size: var(--text-md);
+}
+
+.about {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-4);
+    padding-top: var(--space-4);
+}
+
+.about-name {
+    font-size: var(--text-lg);
+    font-weight: 650;
+}
+
+@media (max-width: 700px) {
+    .settings-dialog[open] {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .settings-nav {
+        display: flex;
+        overflow-x: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .settings-nav button {
+        flex: none;
+    }
+
+    .setting-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+}

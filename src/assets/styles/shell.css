@@ -1,0 +1,895 @@
+/* The workbench frame: top bar, sidebar, main area, right panel and rail, status bar. */
+
+.shell {
+    display: grid;
+    grid-template-columns:
+        [side] var(--sidebar-width) [side-resize] auto
+        [console-left] var(--console-left-width, 0) [console-left-resize] auto [main] minmax(0, 1fr)
+        [console-right-resize] auto [console-right] var(--console-right-width, 0)
+        [panel-resize] auto [panel] var(--right-panel-width) [rail] 44px;
+    grid-template-rows:
+        [top] 44px [body] minmax(0, 1fr) [bottom-resize] auto [bottom] var(--bottom-panel-height)
+        [status] 26px;
+    height: 100%;
+}
+
+/* The sidebar and rail run the full height; the Console and Issues panel sits under the work. */
+.topbar {
+    grid-column: 1 / -1;
+    grid-row: top;
+}
+.sidebar {
+    grid-column: side;
+    grid-row: body / status;
+}
+.sidebar-resize {
+    grid-column: side-resize;
+    grid-row: body / status;
+}
+.shell-main {
+    grid-column: main;
+    grid-row: body;
+}
+.panel-resize {
+    grid-column: panel-resize;
+    grid-row: body / status;
+}
+.right-panel {
+    grid-column: panel;
+    grid-row: body / status;
+}
+.right-rail {
+    grid-column: rail;
+    grid-row: body / status;
+}
+.bottom-resize {
+    grid-column: console-left / panel-resize;
+    grid-row: bottom-resize;
+}
+.bottom-panel {
+    grid-column: console-left / panel-resize;
+    grid-row: bottom;
+}
+
+/* Moved beside the work area, the Console and Issues panel takes a column of the body row instead. */
+.shell[data-console-dock='left'] .bottom-panel {
+    grid-column: console-left;
+    grid-row: body;
+}
+.shell[data-console-dock='right'] .bottom-panel {
+    grid-column: console-right;
+    grid-row: body;
+}
+.console-resize-left {
+    grid-column: console-left-resize;
+    grid-row: body;
+}
+.console-resize-right {
+    grid-column: console-right-resize;
+    grid-row: body;
+}
+.statusbar {
+    grid-column: 1 / -1;
+    grid-row: status;
+}
+
+/* ── Top bar ─────────────────────────────────────────────────────────── */
+
+.topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 480px) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-3);
+    padding: 0 var(--space-3);
+    border-bottom: 1px solid var(--line);
+    background: var(--rail);
+    color: var(--rail-ink);
+}
+
+.topbar-start,
+.topbar-end {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+.topbar-end {
+    justify-content: flex-end;
+}
+
+/* Which database is in use, beside its settings button. */
+.db-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    max-width: 260px;
+    height: 26px;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--rail-ink);
+    font-size: var(--text-xs);
+}
+
+.db-status > svg {
+    flex: none;
+    color: var(--ink-3);
+}
+
+.db-status[data-kind='supabase'] > svg {
+    color: var(--get);
+}
+
+.db-status[data-kind='postgres'] > svg {
+    color: var(--put);
+}
+
+@media (max-width: 900px) {
+    .db-status-text {
+        display: none;
+    }
+}
+
+.topbar > svg,
+.topbar-start > svg {
+    flex: none;
+}
+
+.topbar-button,
+.workspace-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--rail-ink);
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 120ms var(--ease-out);
+}
+
+.workspace-switch {
+    min-width: 0;
+    max-width: 260px;
+    border-color: transparent;
+}
+
+.topbar-button:hover,
+.workspace-switch:hover {
+    background: var(--rail-hover);
+}
+
+.topbar-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--rail-ink);
+    cursor: pointer;
+}
+
+.topbar-icon:hover {
+    background: var(--rail-hover);
+}
+
+.avatar-button {
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+}
+
+/* ── Quick search ────────────────────────────────────────────────────── */
+
+.quick-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.quick-search-input {
+    width: 100%;
+}
+
+.quick-search-key {
+    flex: none;
+    color: var(--ink-3);
+}
+
+.quick-search-results {
+    position: absolute;
+    inset: calc(100% + 4px) 0 auto;
+    z-index: 40;
+    margin: 0;
+    padding: var(--space-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--raised);
+    box-shadow: var(--shadow-pop);
+    list-style: none;
+    animation: menu-in 120ms var(--ease-out);
+}
+
+.quick-search-results li {
+    display: grid;
+    grid-template-columns: 32px minmax(0, auto) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-2);
+    height: 32px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.quick-search-results li[aria-selected='true'] {
+    background: var(--hover);
+}
+
+.quick-search-results .muted {
+    font-size: var(--text-sm);
+}
+
+.quick-search-results .quick-search-empty {
+    display: block;
+    height: auto;
+    padding: var(--space-2);
+    color: var(--ink-2);
+    cursor: default;
+}
+
+/* ── Main area ───────────────────────────────────────────────────────── */
+
+.shell-main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    background: var(--bg);
+}
+
+/* ── Right panel and rail ────────────────────────────────────────────── */
+
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    background: var(--panel);
+}
+
+.right-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: none;
+    height: var(--bar-height);
+    padding: 0 var(--space-2) 0 var(--space-4);
+    border-bottom: 1px solid var(--line);
+}
+
+.right-panel-header h2 {
+    font-size: var(--text-md);
+    font-weight: 600;
+}
+
+.panel-scroll {
+    flex: 1;
+    min-height: 0;
+    padding: var(--space-4);
+    overflow-y: auto;
+}
+
+.variables-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.variables-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.variables-heading,
+.variables-group-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-md);
+    font-weight: 600;
+}
+
+.variable-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.variable-name {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    font-weight: 600;
+}
+
+.variable-value {
+    min-width: 0;
+}
+
+.variables-fold {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: var(--space-1);
+    height: 26px;
+    padding: 0 var(--space-2) 0 2px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--ink-2);
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 120ms var(--ease-out),
+        color 120ms var(--ease-out);
+}
+
+.variables-fold:hover {
+    background: var(--hover);
+    color: var(--ink);
+}
+
+.variables-fold svg {
+    transition: transform 150ms var(--ease-out);
+}
+
+.variables-fold[aria-expanded='true'] svg {
+    transform: rotate(90deg);
+}
+
+.variables-groups {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    animation: variables-in 200ms var(--ease-out);
+}
+
+.variables-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+@keyframes variables-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+}
+
+.panel-note {
+    padding: var(--space-4);
+}
+
+.right-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    padding-top: var(--space-2);
+    border-left: 1px solid var(--line);
+    background: var(--panel);
+}
+
+.right-rail-button {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition:
+        background-color 120ms var(--ease-out),
+        color 120ms var(--ease-out);
+}
+
+.right-rail-button:hover {
+    background: var(--hover);
+    color: var(--ink);
+}
+
+.right-rail-button[aria-pressed='true'] {
+    background: var(--selected);
+    color: var(--ink);
+}
+
+.rail-count {
+    position: absolute;
+    top: 2px;
+    right: 1px;
+    min-width: 14px;
+    padding: 0 3px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 0.5625rem;
+    font-weight: 700;
+    line-height: 14px;
+}
+
+/* ── Status bar ──────────────────────────────────────────────────────── */
+
+.statusbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 0 var(--space-2);
+    border-top: 1px solid var(--line);
+    background: var(--rail);
+    color: var(--ink-2);
+    font-size: var(--text-xs);
+}
+
+.statusbar-button {
+    display: inline-grid;
+    place-items: center;
+    width: 22px;
+    height: 20px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--ink-2);
+    cursor: pointer;
+}
+
+.statusbar-button:hover {
+    background: var(--hover);
+    color: var(--ink);
+}
+
+.statusbar-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 20px;
+    padding: 0 6px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--ink-2);
+    font-size: var(--text-xs);
+    cursor: pointer;
+}
+
+.statusbar-text:hover,
+.statusbar-text[aria-pressed='true'] {
+    background: var(--hover);
+    color: var(--ink);
+}
+
+.statusbar-count {
+    min-width: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ink) 14%, transparent);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+/* ── Console and Issues ──────────────────────────────────────────────── */
+
+.bottom-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border-top: 1px solid var(--line);
+    background: var(--bg);
+}
+
+.bottom-header {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0 var(--space-2) 0 var(--space-3);
+    border-bottom: 1px solid var(--line);
+}
+
+.bottom-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+.bottom-empty {
+    flex: 1;
+}
+
+.console-list,
+.issue-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.console-entry + .console-entry {
+    border-top: 1px solid var(--line);
+}
+
+.console-row {
+    display: grid;
+    grid-template-columns: 14px auto 64px minmax(0, 1fr) minmax(0, 180px) 44px 64px;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    min-height: 28px;
+    padding: 0 var(--space-3);
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font-family: var(--font-code);
+    font-size: var(--text-sm);
+    text-align: left;
+    cursor: pointer;
+}
+
+.console-row:hover {
+    background: var(--hover);
+}
+
+.console-chevron {
+    color: var(--ink-3);
+    transition: transform 120ms var(--ease-out);
+}
+
+.console-row[aria-expanded='true'] .console-chevron {
+    transform: rotate(90deg);
+}
+
+.console-time,
+.console-source,
+.console-duration {
+    color: var(--ink-3);
+}
+
+.console-method {
+    font-family: var(--font-ui);
+    font-size: var(--text-2xs);
+    font-weight: 700;
+}
+
+.console-status {
+    font-variant-numeric: tabular-nums;
+}
+
+.console-status[data-tone='good'] {
+    color: var(--get);
+}
+.console-status[data-tone='neutral'] {
+    color: var(--post);
+}
+.console-status[data-tone='bad'] {
+    color: var(--danger);
+}
+
+.console-duration {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.console-detail {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3) var(--space-3) 38px;
+}
+
+.console-detail h4 {
+    margin-bottom: var(--space-1);
+    color: var(--ink-2);
+    font-size: var(--text-xs);
+    font-weight: 600;
+}
+
+.console-body {
+    max-height: 240px;
+    margin: 0;
+    overflow: auto;
+    padding: var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.issues-clear {
+    margin: var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    color: var(--ink-2);
+    font-size: var(--text-md);
+}
+
+.issue-row {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr) minmax(0, 240px);
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    min-height: 30px;
+    padding: var(--space-1) var(--space-3);
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font-size: var(--text-md);
+    text-align: left;
+    cursor: pointer;
+}
+
+.issue-row:hover {
+    background: var(--hover);
+}
+
+.issue-row[data-severity='error'] .issue-icon,
+.issue-counts [data-severity='error'] {
+    color: var(--danger);
+}
+.issue-row[data-severity='warning'] .issue-icon,
+.issue-counts [data-severity='warning'] {
+    color: var(--post);
+}
+
+.issue-where {
+    color: var(--ink-3);
+    font-size: var(--text-sm);
+    text-align: right;
+}
+
+.issue-counts {
+    display: inline-flex;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+}
+
+.issue-counts span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Beside the work area the panel is no wider than a sidebar, so its rows fold as on a narrow window. */
+.bottom-panel[data-dock='left'],
+.bottom-panel[data-dock='right'] {
+    border-top: 0;
+}
+
+.bottom-panel[data-dock='left'] .issue-counts,
+.bottom-panel[data-dock='right'] .issue-counts {
+    display: none;
+}
+
+.bottom-panel[data-dock='left'] .console-row,
+.bottom-panel[data-dock='right'] .console-row {
+    grid-template-columns: 14px 64px minmax(0, 1fr) 44px;
+}
+
+.bottom-panel[data-dock='left'] :is(.console-time, .console-source, .console-duration),
+.bottom-panel[data-dock='right'] :is(.console-time, .console-source, .console-duration) {
+    display: none;
+}
+
+.bottom-panel[data-dock='left'] .issue-row,
+.bottom-panel[data-dock='right'] .issue-row {
+    grid-template-columns: 16px minmax(0, 1fr);
+}
+
+.bottom-panel[data-dock='left'] .issue-where,
+.bottom-panel[data-dock='right'] .issue-where {
+    grid-column: 2;
+    text-align: left;
+}
+
+@media (max-width: 900px) {
+    .console-row {
+        grid-template-columns: 14px 64px minmax(0, 1fr) 44px;
+    }
+
+    .console-time,
+    .console-source,
+    .console-duration {
+        display: none;
+    }
+
+    .issue-row {
+        grid-template-columns: 16px minmax(0, 1fr);
+    }
+
+    .issue-where {
+        grid-column: 2;
+        text-align: left;
+    }
+}
+
+.connection {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.connection::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--warn);
+}
+
+.connection[data-state='connected']::before {
+    background: var(--ok);
+}
+
+.connection[data-state='offline'] {
+    color: var(--danger);
+}
+
+.connection[data-state='offline']::before {
+    background: var(--danger);
+}
+
+.statusbar .notice {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-width: 0;
+    color: var(--danger);
+}
+
+.statusbar .notice .icon-button {
+    width: 16px;
+    height: 16px;
+}
+
+/* ── Narrow screens: sidebar and panel float over the work area ──────── */
+
+@media (max-width: 900px) {
+    .shell {
+        grid-template-columns:
+            [side side-resize console-left console-left-resize main console-right-resize console-right panel-resize panel] minmax(
+                0,
+                1fr
+            )
+            [rail] 44px;
+    }
+
+    .sidebar,
+    .right-panel {
+        position: relative;
+        z-index: 20;
+        box-shadow: var(--shadow-pop);
+    }
+
+    .sidebar {
+        width: min(300px, calc(100vw - 60px));
+        border-right: 1px solid var(--line);
+    }
+
+    .right-panel {
+        justify-self: end;
+        width: min(340px, calc(100vw - 60px));
+        border-left: 1px solid var(--line);
+    }
+
+    .sidebar-resize,
+    .panel-resize {
+        display: none;
+    }
+
+    .topbar {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+
+    .topbar-label,
+    .quick-search-key,
+    .topbar-end .presence {
+        display: none;
+    }
+}
+
+/* ── Panels as rounded cards on the frame ────────────────────────────── */
+
+/* The top bar, rail and status bar sit on the frame; the sidebar, work area, right panel and
+   Console are cards with a small gap. Each card keeps a gap above, below and on its right; the
+   sidebar also on its left, so neighbours are one gap (and a resize line) apart. The right panel
+   and rail sit in a display: contents wrapper, hence the second selector. */
+.shell {
+    --shell-gap: 4px;
+
+    background: var(--rail);
+}
+
+:is(.shell, .shell > .contents)
+    > :is(.sidebar, .shell-main, .right-panel, .bottom-panel, .right-rail) {
+    margin: var(--shell-gap) var(--shell-gap) var(--shell-gap) 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+}
+
+:is(.shell, .shell > .contents) > .sidebar {
+    margin-left: var(--shell-gap);
+}
+
+:is(.shell, .shell > .contents) > .bottom-panel {
+    margin-top: 0;
+}
+
+.topbar {
+    border-bottom: 0;
+}
+
+.statusbar {
+    border-top: 0;
+}
+
+:is(.shell, .shell > .contents) > .right-rail {
+    background: var(--panel);
+}
+
+/* Resize lines disappear into the gap until they are grabbed. */
+:is(.shell, .shell > .contents) > .resize-handle {
+    background: transparent;
+}
+
+:is(.shell, .shell > .contents) > .resize-handle:hover,
+:is(.shell, .shell > .contents) > .resize-handle:focus-visible,
+body[data-resizing] :is(.shell, .shell > .contents) > .resize-handle {
+    background: var(--accent);
+}
+
+/* The right panel and its rail read as one card: no gap and no border between them. */
+:is(.shell, .shell > .contents) > .right-panel {
+    margin-right: 0;
+    border-right: 0;
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+
+.shell:has(.right-panel) > .contents > .right-rail {
+    border-left-color: color-mix(in srgb, var(--line) 60%, transparent);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Opening or closing a side panel pushes the work area over smoothly instead of jumping. */
+.shell {
+    transition:
+        grid-template-columns 320ms var(--ease-out),
+        grid-template-rows 320ms var(--ease-out);
+}
+
+body:is([data-resizing], [data-docking]) .shell {
+    transition: none;
+}
+
+/* While the column grows, the panel's content keeps its full width and is uncovered, not squeezed. */
+@media (min-width: 901px) {
+    .right-panel > * {
+        min-width: calc(var(--right-panel-open) - 2px);
+    }
+}

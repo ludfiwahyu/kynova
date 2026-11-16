@@ -1,0 +1,163 @@
+{
+    "schemaVersion": 2,
+    "generatedAt": "2026-11-12T00:00:00Z",
+    "title": "Design System: Kynova",
+    "extensions": {
+        "colorMeta": {
+            "action-blue-dark": {
+                "role": "primary",
+                "displayName": "Action Blue",
+                "canonical": "#3b72e1"
+            },
+            "action-blue-light": {
+                "role": "primary",
+                "displayName": "Action Blue (light)",
+                "canonical": "#0265d2"
+            },
+            "surface-dark": {
+                "role": "neutral",
+                "displayName": "Surface",
+                "canonical": "#212121"
+            },
+            "frame-dark": {
+                "role": "neutral",
+                "displayName": "Frame",
+                "canonical": "#1c1c1c"
+            },
+            "line-dark": {
+                "role": "neutral",
+                "displayName": "Line",
+                "canonical": "#363636"
+            },
+            "get-dark": {
+                "role": "tertiary",
+                "displayName": "GET Green",
+                "canonical": "#6bdd9a"
+            },
+            "post-dark": {
+                "role": "tertiary",
+                "displayName": "POST Yellow",
+                "canonical": "#ffe47e"
+            },
+            "put-dark": {
+                "role": "tertiary",
+                "displayName": "PUT Blue",
+                "canonical": "#74aef6"
+            },
+            "patch-dark": {
+                "role": "tertiary",
+                "displayName": "PATCH Purple",
+                "canonical": "#c0a8e1"
+            },
+            "delete-dark": {
+                "role": "tertiary",
+                "displayName": "DELETE Red",
+                "canonical": "#f79a8e"
+            }
+        },
+        "typographyMeta": {
+            "body": {
+                "displayName": "Body",
+                "purpose": "Base size of the whole interface."
+            },
+            "caption": {
+                "displayName": "Caption",
+                "purpose": "Uppercase sidebar section headers."
+            },
+            "method": {
+                "displayName": "Method",
+                "purpose": "Method labels in tree, tabs and search."
+            },
+            "code": {
+                "displayName": "Code",
+                "purpose": "Bodies, scripts, snippets and responses."
+            }
+        },
+        "shadows": [
+            {
+                "name": "pop",
+                "value": "0 10px 28px -8px rgb(0 0 0 / 0.38), 0 2px 8px -2px rgb(0 0 0 / 0.2)",
+                "purpose": "Menus, dialogs, search results, floating panels."
+            }
+        ],
+        "motion": [
+            {
+                "name": "ease-out",
+                "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+                "purpose": "State transitions, 120\u2013160ms."
+            }
+        ],
+        "breakpoints": [
+            {
+                "name": "narrow",
+                "value": "900px"
+            }
+        ]
+    },
+    "components": [
+        {
+            "name": "Send Button",
+            "kind": "button",
+            "refersTo": "send-button",
+            "description": "The one main action of a request.",
+            "html": "<button class=\"c-send\">Send</button>",
+            "css": ".c-send { height: 38px; min-width: 96px; padding: 0 24px; border: 0; border-radius: 4px; background: #3b72e1; color: #fff; font: 600 0.8125rem system-ui, -apple-system, 'Segoe UI', sans-serif; cursor: pointer; } .c-send:hover { background: color-mix(in srgb, #3b72e1 86%, black); }"
+        },
+        {
+            "name": "URL Box",
+            "kind": "input",
+            "refersTo": "url-box",
+            "description": "Method and URL in one bordered box, variables coloured.",
+            "html": "<div class=\"c-url\"><span class=\"c-method\">GET</span><span class=\"c-text\"><span class=\"c-var\">{{base_url}}</span>/livez</span></div>",
+            "css": ".c-url { display: flex; width: 420px; height: 38px; border: 1px solid #363636; border-radius: 4px; background: #212121; color: #f0f0f0; font: 400 0.8125rem system-ui, -apple-system, 'Segoe UI', sans-serif; } .c-method { display: grid; place-items: center; width: 96px; border-right: 1px solid #363636; color: #6bdd9a; font-weight: 700; } .c-text { display: flex; align-items: center; padding: 0 12px; } .c-var { color: #3b72e1; }"
+        },
+        {
+            "name": "Request Tabs",
+            "kind": "nav",
+            "refersTo": "tabs",
+            "description": "Text tabs with a blue underline, green counts and dots.",
+            "html": "<div class=\"c-tabs\"><b>Params</b><span>Authorization</span><span>Headers <i>3</i></span><span>Body</span><span>Scripts <em></em></span></div>",
+            "css": ".c-tabs { display: flex; gap: 16px; padding: 0 16px; background: #212121; color: #b3b3b3; font: 500 0.8125rem system-ui, -apple-system, 'Segoe UI', sans-serif; } .c-tabs > * { display: inline-flex; align-items: center; gap: 5px; height: 36px; } .c-tabs b { color: #f0f0f0; font-weight: 500; box-shadow: inset 0 -2px #3b72e1; } .c-tabs i { color: #6bdd9a; font-style: normal; font-size: 0.6875rem; } .c-tabs em { width: 6px; height: 6px; border-radius: 50%; background: #6bdd9a; }"
+        }
+    ],
+    "narrative": {
+        "northStar": "A familiar API workbench",
+        "overview": "Laid out like a desktop API client at the user's request, with Kynova's own name and logo. Neutral greys, one blue action colour, and colour elsewhere only where it states a fact.",
+        "keyCharacteristics": [
+            "Neutral greys with hairline borders",
+            "Blue for the main action only",
+            "Method colours on every request label",
+            "Draggable dividers between all areas",
+            "Twelve themes, one layout"
+        ],
+        "rules": [
+            {
+                "name": "The Fact Colour Rule",
+                "body": "Colour other than grey says something true: a method, a status, a variable's state, the main action.",
+                "section": "colors"
+            },
+            {
+                "name": "The Sent-Text Rule",
+                "body": "Mono only for text that is sent or received.",
+                "section": "typography"
+            },
+            {
+                "name": "The Flat Workbench Rule",
+                "body": "Resting surfaces are flat; a shadow means the element floats.",
+                "section": "elevation"
+            }
+        ],
+        "dos": [
+            "Use role tokens",
+            "Controls 32px, URL bar and Send 38px, tree rows 28px",
+            "Give dividers a double-click reset",
+            "Transitions 120\u2013160ms ease-out"
+        ],
+        "donts": [
+            "Upgrade prompts or locked features",
+            "Decorative colour",
+            "Shadows on resting surfaces",
+            "Hover actions that move content"
+        ]
+    }
+}

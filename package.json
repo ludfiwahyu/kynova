@@ -1,0 +1,155 @@
+{
+    "name": "kynova",
+    "productName": "Kynova",
+    "private": true,
+    "version": "0.1.0",
+    "description": "An API client for teams: requests, collections and environments, edited together live.",
+    "license": "MIT",
+    "type": "module",
+    "main": "dist-desktop/main.cjs",
+    "scripts": {
+        "dev": "concurrently -n server,web -c blue,green \"npm:dev:server\" \"npm:dev:web\"",
+        "dev:server": "node --env-file-if-exists=.env.local --watch server/index.ts",
+        "dev:web": "vite",
+        "build": "tsc --noEmit && vite build",
+        "start": "NODE_ENV=production node --env-file-if-exists=.env.local server/index.ts",
+        "typecheck": "tsc --noEmit",
+        "db:backup": "node server/database/scripts/backup.ts",
+        "db:restore": "node server/database/scripts/restore.ts",
+        "db:copy-to-postgres": "node server/database/scripts/copy.ts",
+        "db:copy-to-mysql": "node server/database/scripts/copy.ts",
+        "db:migrate": "node server/database/scripts/migrate.ts",
+        "db:sql": "node server/database/scripts/migrationSql.ts",
+        "test": "node --import ./scripts/testAliases.ts --test \"server/**/*.test.ts\" \"src/**/*.test.ts\"",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "desktop:build": "vite build --mode desktop && node scripts/buildDesktop.ts",
+        "desktop": "npm run desktop:build && node scripts/runDesktop.ts",
+        "desktop:mac": "vite build --mode mac && node scripts/buildDesktop.ts && electron-builder --mac",
+        "desktop:win": "vite build --mode win && node scripts/buildDesktop.ts && electron-builder --win",
+        "desktop:win:zip": "vite build --mode win && node scripts/buildDesktop.ts && electron-builder --win zip --x64",
+        "lint": "./tools/eslint/node_modules/.bin/eslint -c tools/eslint/eslint.config.js .",
+        "lint:fix": "./tools/eslint/node_modules/.bin/eslint -c tools/eslint/eslint.config.js . --fix",
+        "setup:lint": "npm ci --prefix tools/eslint",
+        "check": "npm run format:check && npm run lint && npm run typecheck && npm test"
+    },
+    "dependencies": {
+        "@codemirror/autocomplete": "^6.20.4",
+        "@codemirror/commands": "^6.11.1",
+        "@codemirror/lang-javascript": "^6.2.5",
+        "@codemirror/lang-json": "^6.0.2",
+        "@codemirror/language": "^6.13.1",
+        "@codemirror/search": "^6.7.2",
+        "@codemirror/state": "^6.7.6",
+        "@codemirror/view": "^6.43.15",
+        "@fontsource-variable/inter": "^5.3.0",
+        "@fontsource-variable/jetbrains-mono": "^5.3.0",
+        "@lezer/highlight": "^1.2.5",
+        "lucide-react": "^1.72.0",
+        "motion": "^14.13.0",
+        "mysql2": "^3.24.6",
+        "pg": "^8.23.1",
+        "react": "^19.3.1",
+        "react-dom": "^19.3.1",
+        "undici": "^8.12.4",
+        "ws": "^8.22.2",
+        "zustand": "^5.1.0"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.3.5",
+        "@types/node": "^26.6.6",
+        "@types/pg": "^8.23.1",
+        "@types/react": "^19.3.0",
+        "@types/react-dom": "^19.3.0",
+        "@types/ws": "^8.18.2",
+        "@vitejs/plugin-react": "^6.3.0",
+        "concurrently": "^10.0.7",
+        "electron": "^45.3.1",
+        "electron-builder": "^27.0.0-alpha.14",
+        "esbuild": "^0.28.2",
+        "prettier": "^3.10.1",
+        "prettier-plugin-tailwindcss": "^0.8.1",
+        "tailwindcss": "^4.3.5",
+        "typescript": "^7.0.2",
+        "vite": "^8.3.8"
+    },
+    "imports": {
+        "#server/*": "./server/*",
+        "#shared/*": "./shared/*"
+    },
+    "build": {
+        "appId": "app.kynova.desktop",
+        "productName": "Kynova",
+        "directories": {
+            "output": "release",
+            "buildResources": "build"
+        },
+        "mac": {
+            "target": [
+                {
+                    "target": "dmg",
+                    "arch": [
+                        "arm64",
+                        "x64"
+                    ]
+                },
+                {
+                    "target": "zip",
+                    "arch": [
+                        "arm64",
+                        "x64"
+                    ]
+                }
+            ],
+            "category": "public.app-category.developer-tools",
+            "icon": "build/icon.png",
+            "sign": {
+                "identity": "-"
+            }
+        },
+        "win": {
+            "target": [
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "x64"
+                    ]
+                },
+                {
+                    "target": "portable",
+                    "arch": [
+                        "x64"
+                    ]
+                },
+                {
+                    "target": "zip",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ],
+            "icon": "build/icon.png"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true
+        },
+        "fileOptions": {
+            "files": [
+                "dist/**/*",
+                "dist-desktop/**/*",
+                "package.json",
+                "!node_modules/**/*"
+            ]
+        }
+    },
+    "overrides": {
+        "app-builder-lib": {
+            "minimatch": "^11.0.8"
+        }
+    },
+    "allowScripts": {
+        "esbuild@0.28.2": true,
+        "fsevents@2.3.3": true
+    }
+}

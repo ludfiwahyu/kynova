@@ -1,0 +1,322 @@
+/*
+ * Design tokens. A theme sets the surface, ink and accent colours;
+ * the scheme (light or dark) sets status and method colours.
+ */
+:root {
+    /* System fonts until Settings says otherwise (App sets these from the preferences). */
+    --font-ui:
+        system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+        sans-serif;
+    --font-code:
+        ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+    --text-2xs: 0.625rem;
+    --text-xs: 0.6875rem;
+    --text-sm: 0.75rem;
+    --text-md: 0.8125rem;
+    --text-lg: 0.9375rem;
+    --text-xl: 1.375rem;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-6: 24px;
+    --space-8: 32px;
+
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+
+    --control-height: 32px;
+    --row-height: 28px;
+    --bar-height: 40px;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --shadow-pop: 0 10px 28px -8px rgb(0 0 0 / 0.38), 0 2px 8px -2px rgb(0 0 0 / 0.2);
+
+    --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent);
+
+    /* Derived, so every theme gets them for free. */
+    --hover: color-mix(in srgb, var(--ink) 7%, transparent);
+    --pressed: color-mix(in srgb, var(--ink) 11%, transparent);
+    --selected: color-mix(in srgb, var(--ink) 10%, transparent);
+    --accent-soft: color-mix(in srgb, var(--accent) 18%, transparent);
+    --rail-hover: color-mix(in srgb, var(--rail-ink) 10%, transparent);
+}
+
+/* ── Shape ───────────────────────────────────────────────────────────── */
+
+:root[data-corners='sharp'] {
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
+}
+
+:root[data-corners='round'] {
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+}
+
+:root[data-size='compact'] {
+    --control-height: 28px;
+    --row-height: 24px;
+    --bar-height: 36px;
+}
+
+:root[data-size='comfortable'] {
+    --control-height: 36px;
+    --row-height: 32px;
+    --bar-height: 44px;
+}
+
+/* Only icons at the default weight; the ones drawn thinner or thicker on purpose keep theirs. */
+:root[data-icons='light'] svg.lucide[stroke-width='2'] {
+    stroke-width: 1.5;
+}
+
+:root[data-icons='bold'] svg.lucide[stroke-width='2'] {
+    stroke-width: 2.5;
+}
+
+/* ── Schemes ─────────────────────────────────────────────────────────── */
+
+:root[data-scheme='light'],
+.theme-preview[data-scheme='light'] {
+    color-scheme: light;
+    --ok: #007f31;
+    --warn: #9a6700;
+    --danger: #c5221f;
+    --get: #007f31;
+    --post: #ad7a03;
+    --put: #0053b8;
+    --patch: #623497;
+    --delete: #8e1a10;
+    --options: #a61468;
+    --socket: #0b6e75;
+    /* Code colours: GitHub Light. */
+    --syn-key: #0550ae;
+    --syn-string: #116329;
+    --syn-number: #953800;
+    --syn-bool: #cf222e;
+    --syn-null: #8250df;
+    --syn-keyword: #cf222e;
+    --syn-function: #8250df;
+    --syn-type: #953800;
+    --syn-variable: #24292f;
+    --syn-comment: #6e7781;
+    --syn-bracket-0: #9a6700;
+    --syn-bracket-1: #bf3989;
+    --syn-bracket-2: #0969da;
+}
+
+:root[data-scheme='dark'],
+.theme-preview[data-scheme='dark'] {
+    color-scheme: dark;
+    --ok: #6bdd9a;
+    --warn: #ffe47e;
+    --danger: #f79a8e;
+    --get: #6bdd9a;
+    --post: #ffe47e;
+    --put: #74aef6;
+    --patch: #c0a8e1;
+    --delete: #f79a8e;
+    --options: #f15eb0;
+    --socket: #5fd3c7;
+    /* Code colours: GitHub Dark. */
+    --syn-key: #79c0ff;
+    --syn-string: #7ee787;
+    --syn-number: #ffa657;
+    --syn-bool: #ff7b72;
+    --syn-null: #d2a8ff;
+    --syn-keyword: #ff7b72;
+    --syn-function: #d2a8ff;
+    --syn-type: #ffa657;
+    --syn-variable: #c9d1d9;
+    --syn-comment: #8b949e;
+    --syn-bracket-0: #e3b341;
+    --syn-bracket-1: #f778ba;
+    --syn-bracket-2: #58a6ff;
+}
+
+/* ── Themes ──────────────────────────────────────────────────────────── */
+
+:root[data-theme='light'],
+.theme-preview[data-theme='light'] {
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --raised: #ffffff;
+    --line: #e6e6e6;
+    --ink: #212121;
+    --ink-2: #5c5c5c;
+    --ink-3: #6b6b6b;
+    --accent: #0265d2;
+    --accent-ink: #ffffff;
+    --rail: #f9f9f9;
+    --rail-ink: #212121;
+}
+
+:root[data-theme='dark'],
+.theme-preview[data-theme='dark'] {
+    --bg: #212121;
+    --panel: #212121;
+    --raised: #282828;
+    --line: #363636;
+    --ink: #f0f0f0;
+    --ink-2: #b3b3b3;
+    --ink-3: #9a9a9a;
+    --accent: #3b72e1;
+    --accent-ink: #ffffff;
+    --rail: #1c1c1c;
+    --rail-ink: #e6e6e6;
+}
+
+:root[data-theme='ayu-light'],
+.theme-preview[data-theme='ayu-light'] {
+    --bg: #fcfcfc;
+    --panel: #f3f4f5;
+    --raised: #ffffff;
+    --line: #dcdfe3;
+    --ink: #3d444d;
+    --ink-2: #5c6773;
+    --ink-3: #6b7480;
+    --accent: #b85c00;
+    --accent-ink: #ffffff;
+    --rail: #e7e9ec;
+    --rail-ink: #3d444d;
+}
+
+:root[data-theme='ayu-dark'],
+.theme-preview[data-theme='ayu-dark'] {
+    --bg: #0d1017;
+    --panel: #10141c;
+    --raised: #171c26;
+    --line: #262d3a;
+    --ink: #bfbdb6;
+    --ink-2: #9da0a8;
+    --ink-3: #868b96;
+    --accent: #ffb454;
+    --accent-ink: #1a1204;
+    --rail: #0a0d13;
+    --rail-ink: #bfbdb6;
+}
+
+:root[data-theme='dracula'],
+.theme-preview[data-theme='dracula'] {
+    --bg: #282a36;
+    --panel: #21222c;
+    --raised: #343746;
+    --line: #44475a;
+    --ink: #f8f8f2;
+    --ink-2: #c9cbe0;
+    --ink-3: #a4a8c4;
+    --accent: #bd93f9;
+    --accent-ink: #1c1530;
+    --rail: #191a21;
+    --rail-ink: #e2e2f0;
+}
+
+:root[data-theme='monokai'],
+.theme-preview[data-theme='monokai'] {
+    --bg: #272822;
+    --panel: #1f201b;
+    --raised: #34352d;
+    --line: #45463d;
+    --ink: #f8f8f2;
+    --ink-2: #cfcfc2;
+    --ink-3: #a8a999;
+    --accent: #a6e22e;
+    --accent-ink: #172004;
+    --rail: #191a16;
+    --rail-ink: #e6e6da;
+}
+
+:root[data-theme='night-owl-light'],
+.theme-preview[data-theme='night-owl-light'] {
+    --bg: #fbfbfb;
+    --panel: #f0f0f0;
+    --raised: #ffffff;
+    --line: #d9d9d9;
+    --ink: #403f53;
+    --ink-2: #555470;
+    --ink-3: #66657d;
+    --accent: #2a6fd6;
+    --accent-ink: #ffffff;
+    --rail: #e4e6ee;
+    --rail-ink: #403f53;
+}
+
+:root[data-theme='night-owl-dark'],
+.theme-preview[data-theme='night-owl-dark'] {
+    --bg: #011627;
+    --panel: #01111d;
+    --raised: #0b2942;
+    --line: #1d3b53;
+    --ink: #d6deeb;
+    --ink-2: #a7b6cc;
+    --ink-3: #8497b0;
+    --accent: #82aaff;
+    --accent-ink: #011627;
+    --rail: #010e1a;
+    --rail-ink: #c5d2e6;
+}
+
+:root[data-theme='solarized-light'],
+.theme-preview[data-theme='solarized-light'] {
+    --bg: #fdf6e3;
+    --panel: #eee8d5;
+    --raised: #fffbee;
+    --line: #d8d0b8;
+    --ink: #073642;
+    --ink-2: #47616a;
+    --ink-3: #586e75;
+    --accent: #1c6ea8;
+    --accent-ink: #ffffff;
+    --rail: #073642;
+    --rail-ink: #eee8d5;
+}
+
+:root[data-theme='solarized-dark'],
+.theme-preview[data-theme='solarized-dark'] {
+    --bg: #002b36;
+    --panel: #00232c;
+    --raised: #073642;
+    --line: #0f4756;
+    --ink: #eee8d5;
+    --ink-2: #b3bfbf;
+    --ink-3: #93a1a1;
+    --accent: #4aa8e0;
+    --accent-ink: #00212a;
+    --rail: #001d25;
+    --rail-ink: #d5d0bf;
+}
+
+:root[data-theme='high-contrast-light'],
+.theme-preview[data-theme='high-contrast-light'] {
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --raised: #ffffff;
+    --line: #000000;
+    --ink: #000000;
+    --ink-2: #1a1a1a;
+    --ink-3: #333333;
+    --accent: #003e9c;
+    --accent-ink: #ffffff;
+    --rail: #000000;
+    --rail-ink: #ffffff;
+}
+
+:root[data-theme='high-contrast-dark'],
+.theme-preview[data-theme='high-contrast-dark'] {
+    --bg: #000000;
+    --panel: #000000;
+    --raised: #000000;
+    --line: #ffffff;
+    --ink: #ffffff;
+    --ink-2: #ededed;
+    --ink-3: #d4d4d4;
+    --accent: #ffd60a;
+    --accent-ink: #000000;
+    --rail: #000000;
+    --rail-ink: #ffffff;
+}

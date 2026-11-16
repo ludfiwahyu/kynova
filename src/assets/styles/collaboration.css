@@ -1,0 +1,102 @@
+/* Presence, comments, and the share dialog. */
+
+.presence {
+    display: flex;
+    align-items: center;
+    padding-left: 6px;
+}
+
+.presence .avatar {
+    margin-left: -6px;
+    box-shadow: 0 0 0 2px var(--rail);
+}
+
+.presence-more {
+    margin-left: var(--space-1);
+    font-size: var(--text-xs);
+    font-weight: 600;
+}
+
+/* ── Comments ────────────────────────────────────────────────────────── */
+
+.comments {
+    justify-content: space-between;
+}
+
+.comment-list {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.comment-list li {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.comment-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 24px;
+    font-size: var(--text-sm);
+}
+
+.comment-meta time {
+    flex: 1;
+}
+
+.comment-meta .icon-button {
+    width: 22px;
+    height: 22px;
+    opacity: 0;
+}
+
+.comment-list li:hover .icon-button,
+.comment-meta .icon-button:focus-visible {
+    opacity: 1;
+}
+
+.comment-text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.comment-composer {
+    display: grid;
+    justify-items: end;
+    gap: var(--space-2);
+}
+
+/* ── Share dialog ────────────────────────────────────────────────────── */
+
+.invite {
+    display: grid;
+    gap: var(--space-2);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--line);
+}
+
+.invite h3,
+.members-heading {
+    font-size: var(--text-md);
+    font-weight: 600;
+}
+
+.member-list {
+    display: grid;
+    gap: var(--space-3);
+    max-height: 280px;
+    margin: var(--space-3) 0 0;
+    padding: 0;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.member-list li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
