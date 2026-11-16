@@ -15,7 +15,7 @@ export interface CodeEditorProps {
      * around the request pane resizes it. The container must give it a height.
      */
     fill?: boolean
-    /** Colouring and indentation rules. `jsonLoose` is JSON in single quotes or none, coloured by its own reader; `text` indents by brackets alone. */
+    /** Colouring and indentation rules. `jsonLoose` is JSON in single quotes or none, coloured by its own reader; `keyValue` is Bulk Edit's `key:value` lines; `text` indents by brackets alone. */
     language?: CodeLanguage
     /** Colours `{{variables}}`: known ones in the accent colour, unknown ones in red. */
     variables?: Variables
@@ -23,7 +23,23 @@ export interface CodeEditorProps {
     onBlur?: () => void
 }
 
-export type CodeLanguage = 'json' | 'jsonLoose' | 'javascript' | 'text'
+export type CodeLanguage =
+    | 'json'
+    | 'jsonLoose'
+    | 'javascript'
+    | 'keyValue'
+    | 'text'
+    // Code snippet languages, coloured only
+    | 'shell'
+    | 'python'
+    | 'ruby'
+    | 'go'
+    | 'c'
+    | 'csharp'
+    | 'java'
+    | 'dart'
+    | 'php'
+    | 'http'
 
 export type EditingPreferences = Pick<
     Preferences,

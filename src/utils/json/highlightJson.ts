@@ -1,6 +1,6 @@
 export interface JsonToken {
     text: string
-    kind: 'key' | 'string' | 'number' | 'literal' | 'variable' | 'plain'
+    kind: 'key' | 'string' | 'number' | 'literal' | 'variable' | 'plain' | 'comment'
 }
 
 // A string (optionally followed by a colon, making it a key), a literal, or a number.

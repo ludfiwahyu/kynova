@@ -27,7 +27,7 @@ import { highlight } from '@/components/ui/CodeEditor/logic/highlightStyle'
 import { minimap } from '@/components/ui/CodeEditor/logic/minimap'
 import { vscodeEditing } from '@/components/ui/CodeEditor/logic/vscodeEditing'
 import type { CodeEditorProps } from '@/components/ui/CodeEditor/types'
-import { usePreferences } from '@/settings'
+import { setPreferences, usePreferences } from '@/settings'
 
 type Options = Pick<
     CodeEditorProps,
@@ -41,6 +41,19 @@ type Options = Pick<
     | 'variables'
     | 'onBlur'
 >
+
+/** ⌥Z on a Mac, Alt+Z on Windows: word wrap on or off in every editor, as VS Code's setting. */
+const wordWrapKeymap = keymap.of([
+    {
+        key: 'Alt-z',
+        preventDefault: true,
+        run: () => {
+            setPreferences({ wordWrap: !usePreferences.getState().wordWrap })
+
+            return true
+        },
+    },
+])
 
 function editableExtension(disabled: boolean, readOnly: boolean): Extension {
     return [EditorView.editable.of(!disabled), EditorState.readOnly.of(disabled || readOnly)]
@@ -70,8 +83,10 @@ export function useCodeMirror({
         placeholder: new Compartment(),
         variables: new Compartment(),
         label: new Compartment(),
+        wrap: new Compartment(),
     }).current
-    const { indentSize, indentType, autoClosingBrackets, autoClosingQuotes } = usePreferences()
+    const { indentSize, indentType, autoClosingBrackets, autoClosingQuotes, wordWrap } =
+        usePreferences()
 
     callbacks.current = {
         onChange,
@@ -97,6 +112,7 @@ export function useCodeMirror({
         ),
         variables: useMemo(() => (variables ? variableMarks(variables) : []), [variables]),
         label: useMemo(() => EditorView.contentAttributes.of({ 'aria-label': label }), [label]),
+        wrap: useMemo(() => (wordWrap ? EditorView.lineWrapping : []), [wordWrap]),
     }
 
     // The editor is made once; later prop changes reconfigure it below.
@@ -125,6 +141,7 @@ export function useCodeMirror({
                     highlightSelectionMatches(),
                     syntaxHighlighting(highlight),
                     tabKeymap,
+                    wordWrapKeymap,
                     keymap.of([
                         ...closeBracketsKeymap,
                         ...editorKeymap,
@@ -137,6 +154,7 @@ export function useCodeMirror({
                     compartments.placeholder.of(extensions.placeholder),
                     compartments.variables.of(extensions.variables),
                     compartments.label.of(extensions.label),
+                    compartments.wrap.of(extensions.wrap),
                     EditorView.updateListener.of((update) => {
                         const fromOutside = update.transactions.every((transaction) =>
                             transaction.annotation(Transaction.remote),
@@ -177,6 +195,7 @@ export function useCodeMirror({
                 compartments.placeholder.reconfigure(extensions.placeholder),
                 compartments.variables.reconfigure(extensions.variables),
                 compartments.label.reconfigure(extensions.label),
+                compartments.wrap.reconfigure(extensions.wrap),
             ],
         })
     }, [
@@ -187,6 +206,7 @@ export function useCodeMirror({
         extensions.placeholder,
         extensions.variables,
         extensions.label,
+        extensions.wrap,
     ])
 
     // A change from elsewhere (a collaborator, Beautify, another style) replaces only what differs.

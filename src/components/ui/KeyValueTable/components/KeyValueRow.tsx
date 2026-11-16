@@ -16,7 +16,10 @@ export function KeyValueRow({
     const { row, labels, placeholders } = view
 
     return (
-        <tr data-off={view.isOff}>
+        <tr
+            data-off={view.isOff}
+            data-blank={view.isBlank || undefined}
+        >
             <td>
                 {view.canToggle && (
                     <input

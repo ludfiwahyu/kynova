@@ -21,6 +21,7 @@ export * from './json/highlightJson'
 export * from './json/jsonStyle'
 
 // mappers
+export * from './mappers/environmentFormat'
 export * from './mappers/exportFormat'
 
 // request

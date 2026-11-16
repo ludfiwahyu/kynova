@@ -19,6 +19,7 @@ export function EnvironmentRow({ environment }: EnvironmentRowProps) {
                 tabIndex={0}
                 onClick={row.open}
                 onDoubleClick={row.keep}
+                onAuxClick={row.openBehind}
                 onContextMenu={contextMenu.onContextMenu}
                 onKeyDown={row.handleKeyDown}
             >

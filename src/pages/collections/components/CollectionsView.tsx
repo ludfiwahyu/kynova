@@ -26,7 +26,13 @@ export function CollectionsView() {
     const view = useCollectionsView()
 
     return (
-        <div className="sidebar-body">
+        <div
+            className="sidebar-body"
+            data-dropping={view.isDropping || undefined}
+            onDragOver={view.dragOver}
+            onDragLeave={view.dragLeave}
+            onDrop={view.drop}
+        >
             <SidebarToolbar>
                 <SearchInput
                     className="sidebar-filter"
@@ -39,8 +45,8 @@ export function CollectionsView() {
                 <Button
                     variant="icon"
                     icon={<Upload size={ACTIONS_ICON_SIZE} />}
-                    title="Import a collection (v2.1 JSON)"
-                    aria-label="Import collection"
+                    title="Import collections or environments (JSON), or drop files here"
+                    aria-label="Import"
                     disabled={!view.canEdit}
                     onClick={view.chooseFile}
                 />
@@ -78,6 +84,7 @@ export function CollectionsView() {
                     ref={view.fileInput}
                     type="file"
                     accept={IMPORT_ACCEPT}
+                    multiple
                     hidden
                     onChange={view.handleFile}
                 />
@@ -125,7 +132,8 @@ export function CollectionsView() {
                             )
                         }
                     >
-                        A collection groups related requests. Create one, or import a collection.
+                        A collection groups related requests. Create one, or import collections and
+                        environments (or drop the files here).
                     </EmptyState>
                 )}
 
@@ -176,6 +184,16 @@ export function CollectionsView() {
             >
                 <ArchiveList />
             </SidebarSection>
+
+            {view.isDropping && (
+                <div
+                    className="sidebar-drop"
+                    aria-hidden="true"
+                >
+                    <Upload size={TOOLBAR_ICON_SIZE} />
+                    Drop collections or environments to import
+                </div>
+            )}
         </div>
     )
 }

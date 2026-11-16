@@ -16,6 +16,7 @@ import type { Dock } from '@/stores'
 import {
     DEFAULT_LAYOUT,
     editDraft,
+    keepTab,
     sendItem,
     setLayout,
     updateRequest,
@@ -67,6 +68,10 @@ export function useHttpEditor({ item }: HttpEditorProps) {
 
     function send() {
         if (request.url.trim() && !isSending) {
+            keepTab({
+                kind: 'item',
+                id: item.id,
+            })
             void sendItem(item, workspaceId, variables)
         }
     }

@@ -86,6 +86,9 @@ export interface Preferences {
     /** Lays out a JSON body in the chosen JSON style when the editor loses focus. */
     formatOnBlur: boolean
 
+    /** VS Code's editor.wordWrap: long lines break at the editor's edge instead of scrolling. ⌥Z / Alt+Z. */
+    wordWrap: boolean
+
     /** Beautify ends the last member of every object and array with a comma, as JavaScript allows. Sent JSON stays plain. */
     trailingComma: boolean
 }
@@ -106,6 +109,7 @@ export const EDITOR_DEFAULTS = {
     autoClosingQuotes: 'languageDefined',
     formatOnBlur: true,
     trailingComma: false,
+    wordWrap: false,
 } as const
 
 export const SHAPE_DEFAULTS = {

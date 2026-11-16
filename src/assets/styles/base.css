@@ -533,6 +533,13 @@ input[type='checkbox'] {
     color: var(--danger);
 }
 
+/* A line switched off with // (⌘/): muted as a whole, over key, value, variable and bracket colours. */
+.code-area .cm-line[data-off],
+.code-area .cm-line[data-off] * {
+    color: var(--syn-comment);
+    font-style: italic;
+}
+
 .code-area .cm-fold-marker {
     display: inline-grid;
     place-items: center;
@@ -1299,13 +1306,52 @@ body[data-docking] * {
 
 .kv-bar {
     display: flex;
+    gap: var(--space-2);
     align-items: center;
     justify-content: space-between;
     font-size: var(--text-sm);
 }
 
-.kv-root .textarea {
+/* Hint on the left; the Table | Bulk Edit switch and the add button on the right. */
+.kv-hint {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--text-xs);
+}
+
+.kv-hint code {
+    padding: 0 3px;
+    border-radius: var(--radius-sm);
+    background: var(--hover);
+    color: var(--ink-2);
     font-family: var(--font-code);
+}
+
+.segmented.kv-modes {
+    flex: none;
+    padding: 1px;
+}
+
+.segmented.kv-modes button {
+    height: 22px;
+    padding: 0 var(--space-2);
+    font-size: var(--text-xs);
+}
+
+.kv-add {
+    width: 24px;
+    height: 24px;
+    color: var(--ink-2);
+}
+
+.kv-add:hover:not(:disabled) {
+    color: var(--accent);
+}
+
+.kv-add:disabled {
+    opacity: 0.4;
 }
 
 /* ── Dialog ──────────────────────────────────────────────────────────── */

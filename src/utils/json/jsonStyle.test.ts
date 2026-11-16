@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { formatJson, highlightStyled, toJson, toStyle } from './jsonStyle'
+import { formatJson, highlightStyled, toJson, toSendableJson, toStyle } from './jsonStyle'
 
 const JSON_TEXT =
     '{\n  "name": "Budi",\n  "age": 20,\n  "ok": true,\n  "tags": ["a", "b c"],\n  "none": null\n}'
@@ -181,4 +181,46 @@ test('text with trailing commas is plain JSON again once stored', () => {
         a: 1,
         b: [2],
     })
+})
+
+test('// lines stay in the stored body, in every style and in Beautify', () => {
+    const text = '{\n  "a": 1,\n  // "b": 2\n}'
+
+    assert.equal(toJson(text), text)
+    assert.equal(toStyle(text, 'bare'), '{\n  a: 1,\n  // "b": 2\n}')
+    assert.equal(formatJson(text, 'double'), '{\n  "a" : 1,\n  // "b": 2\n}')
+    assert.equal(
+        formatJson('{"a":1,\n// note\n"b":2}', 'double'),
+        '{\n  "a" : 1,\n  // note\n  "b" : 2\n}',
+    )
+    assert.ok(
+        highlightStyled(text).some(
+            (token) => token.kind === 'comment' && token.text === '// "b": 2',
+        ),
+    )
+})
+
+test('a comment keeps the comma before it, and Beautify adds no comma inside it', () => {
+    const text = '{\n  "a": 1,\n  // "b": 2\n}'
+
+    assert.equal(formatJson(text, 'double', '  ', true), '{\n  "a" : 1,\n  // "b": 2\n}')
+})
+
+test('sending drops // lines and the comma they leave before a bracket', () => {
+    assert.equal(toSendableJson('{\n  "a": 1,\n  // "b": 2\n}'), '{\n  "a": 1\n}')
+    assert.equal(toSendableJson('[\n  // 0,\n  1,\n  2\n]'), '[\n  1,\n  2\n]')
+    assert.deepEqual(
+        JSON.parse(toSendableJson('{\n  "a": "{{x}}",\n    // "b": 2,\n  "c": 3\n}')),
+        {
+            a: '{{x}}',
+            c: 3,
+        },
+    )
+})
+
+test('sending leaves text without // lines, and // inside a string, as written', () => {
+    const url = '{ "url": "https://example.com//x" }'
+
+    assert.equal(toSendableJson(url), url)
+    assert.equal(toSendableJson('{"a":1,}'), '{"a":1,}')
 })

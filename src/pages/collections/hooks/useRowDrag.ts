@@ -60,14 +60,16 @@ export function useRowDrag({ item, isChosen, isCollapsed, isContainer, canEdit }
             landed: [],
         })
 
-        event.dataTransfer.effectAllowed = 'move'
+        // Moves in the tree; copies when dropped on the tab strip or the work area, to open there.
+        event.dataTransfer.effectAllowed = 'copyMove'
         event.dataTransfer.setData(MIME.text, ids.map((id) => items[id]?.name).join('\n'))
     }
 
     function dragOver(event: DragEvent<HTMLDivElement>) {
         const { ids } = useTreeDrag.getState()
 
-        if (ids.length === 0) {
+        // Viewers drag rows only to open them in a tab.
+        if (ids.length === 0 || !canEdit) {
             return
         }
 

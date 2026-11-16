@@ -285,9 +285,15 @@ export const SHORTCUTS = {
         windows: 'Ctrl+Shift+]',
     },
 
+    'editor.wordWrap': {
+        group: 'Code editor',
+        action: 'Toggle word wrap',
+        keys: 'Alt+Z',
+    },
+
     'editor.toggleComment': {
         group: 'Code editor',
-        action: 'Toggle comment (scripts)',
+        action: 'Switch lines on or off (comment with //)',
         keys: 'Mod+/',
     },
 

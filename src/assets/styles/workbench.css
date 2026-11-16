@@ -927,6 +927,14 @@ pre.response-scroll {
 [data-token='null'] {
     color: var(--syn-null);
 }
+[data-token='punctuation'] {
+    color: var(--ink-3);
+}
+/* A Bulk Edit line switched off with //. */
+[data-token='comment'] {
+    color: var(--syn-comment);
+    font-style: italic;
+}
 
 .response-image {
     max-width: 100%;
@@ -1541,4 +1549,23 @@ pre.response-scroll {
     font-family: var(--font-code);
     font-size: var(--text-sm);
     font-weight: 600;
+}
+
+/* Rows dragged from the sidebar: where they open in the strip, and the work area taking them. */
+.tab-drop-marker {
+    position: absolute;
+    top: var(--space-1);
+    bottom: var(--space-1);
+    z-index: 2;
+    width: 2px;
+    margin-left: -1px;
+    border-radius: 1px;
+    background: var(--accent);
+    pointer-events: none;
+}
+
+.tab-body[data-dropping] {
+    outline: 1.5px dashed var(--accent);
+    outline-offset: -6px;
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
 }

@@ -18,6 +18,8 @@ export interface KeyValueTableProps {
     fixedKeys?: boolean
     /** False leaves out the Description column, for narrow places. */
     description?: boolean
+    /** Shows an add button under the table with this label; it moves to the empty last row. */
+    addLabel?: string
 }
 
 export interface KeyValueTableOptions {
@@ -87,8 +89,8 @@ export interface ParsedLine {
 export type ViewMode = 'table' | 'bulk'
 
 export interface ViewModeConfig {
-    toggleLabel: string
-    hint: string
+    mode: ViewMode
+    label: string
 }
 
 export type KeyValueTableState = ReturnType<typeof useKeyValueTable>
@@ -103,6 +105,8 @@ export interface KeyValueViewProps {
 
 export interface BulkEditorProps {
     table: KeyValueTableState
+    variables: Variables
+    disabled: boolean
 }
 
 export interface KeyValueRowProps {

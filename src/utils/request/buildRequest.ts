@@ -1,3 +1,4 @@
+import { toSendableJson } from '@/utils/json/jsonStyle'
 import { isSignedAuthType, textValue } from '#shared/auth.ts'
 import { HEADER, MIME } from '#shared/http.ts'
 import type {
@@ -138,7 +139,11 @@ function encodeBody(
     switch (body.type) {
         case 'raw':
             return {
-                text: resolveVariables(body.text, variables),
+                // A JSON body's `//` lines (switched off with ⌘/) stay in the editor, not in the request.
+                text: resolveVariables(
+                    body.language === 'json' ? toSendableJson(body.text) : body.text,
+                    variables,
+                ),
                 contentType: RAW_CONTENT_TYPES[body.language],
             }
         case 'urlencoded':

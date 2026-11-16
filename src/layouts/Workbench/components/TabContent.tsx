@@ -15,6 +15,10 @@ export function TabContent() {
         <div
             ref={tab.bodyRef}
             className="tab-body"
+            data-dropping={tab.explorerDrop.isOver || undefined}
+            onDragOverCapture={tab.explorerDrop.dragOver}
+            onDragLeave={tab.explorerDrop.dragLeave}
+            onDropCapture={tab.explorerDrop.drop}
         >
             {tab.requestItem && (
                 <RequestView

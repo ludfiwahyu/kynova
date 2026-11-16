@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 
 import { useEnterAnimation } from '@/hooks'
+import { useExplorerDrop } from '@/layouts/Workbench/hooks/useExplorerDrop'
 import { TAB_SWITCH } from '@/layouts/Workbench/logic/config'
 import { createCollection, openTab, useCanEdit, useDraft, useUi, useWorkspace } from '@/stores'
 
@@ -15,6 +16,7 @@ export function useTabContent() {
     const isLoading = useWorkspace((state) => state.connection === 'connecting')
     const canEdit = useCanEdit()
     const bodyRef = useRef<HTMLDivElement>(null)
+    const explorerDrop = useExplorerDrop()
 
     useEnterAnimation(bodyRef, activeTab && `${activeTab.kind}:${activeTab.id}`, TAB_SWITCH)
 
@@ -35,6 +37,7 @@ export function useTabContent() {
 
     return {
         bodyRef,
+        explorerDrop,
         requestItem,
         containerItem: containerItem as Extract<typeof item, { kind: 'collection' | 'folder' }>,
         environment,

@@ -1,6 +1,6 @@
 import { confirm } from '@/components'
 import { createEnvironment, deleteEnvironment, editNameSoon, openTab } from '@/stores'
-import { downloadText } from '@/utils'
+import { downloadText, exportEnvironment } from '@/utils'
 import type { Environment } from '#shared/types.ts'
 
 export function newEnvironment(): void {
@@ -26,21 +26,9 @@ export async function confirmDelete(environment: Environment) {
     }
 }
 
-/** Saves the environment's name and variables as a JSON file. */
-export function exportEnvironment(environment: Environment): void {
-    const { name, variables } = environment
-
-    downloadText(
-        `${name}.environment.json`,
-        JSON.stringify(
-            {
-                name,
-                variables,
-            },
-            null,
-            2,
-        ),
-    )
+/** Saves the environment as an environment file that the sidebar's import reads back. */
+export function downloadEnvironment(environment: Environment): void {
+    downloadText(`${environment.name}.environment.json`, exportEnvironment(environment))
 }
 
 export function sortedByName(environments: Record<string, Environment>): Environment[] {

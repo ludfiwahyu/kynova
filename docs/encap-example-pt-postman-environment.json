@@ -1,0 +1,44 @@
+{
+  "id": "267ee29a-8e29-4639-9a2c-19d6f8ba0c2f",
+  "name": "EncapExample PT",
+  "values": [
+    {
+      "key": "service_url",
+      "value": "https://demo.encapsecurity.com/pt",
+      "enabled": true
+    },
+    {
+      "key": "application_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "key_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "key_secret",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "device_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "e2eKeyId",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "firebase_service_account",
+      "value": "",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2024-07-08T08:26:58.258Z",
+  "_postman_exported_using": "Postman/11.2.34"
+}

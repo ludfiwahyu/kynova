@@ -1,0 +1,326 @@
+{
+  "info": {
+    "_postman_id": "52f76445-4752-44dd-a983-4c4bc60da997",
+    "name": "EncapServerAdminExample 3.22",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "17618078",
+    "_collection_link": "https://signicats.postman.co/workspace/MobileID~7368d88f-841f-4293-9f52-5fda4c7a310e/collection/17618078-52f76445-4752-44dd-a983-4c4bc60da997?action=share&source=collection_link&creator=17618078"
+  },
+  "item": [
+    {
+      "name": "Manage",
+      "item": [
+        {
+          "name": "Organization",
+          "item": [
+            {
+              "name": "Create organization",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var jsonData = JSON.parse(responseBody);",
+                      "postman.setEnvironmentVariable(\"organization_id\", jsonData.id);",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n\t\"description\":\"NewOrganization\"\n}"
+                },
+                "url": {
+                  "raw": "{{service_url}}/admin-api/manage/v1/organizations",
+                  "host": ["{{service_url}}"],
+                  "path": ["admin-api", "manage", "v1", "organizations"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get all organizations",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{service_url}}/admin-api/manage/v1/organizations",
+                  "host": ["{{service_url}}"],
+                  "path": ["admin-api", "manage", "v1", "organizations"]
+                }
+              },
+              "response": []
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [""]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [""]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API Keys",
+          "item": [
+            {
+              "name": "Create API key",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var jsonData = JSON.parse(responseBody);",
+                      "postman.setEnvironmentVariable(\"api_key_id\", jsonData.api_key_id);",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"description\": \"Postman test\",\n    \"organization_id\": \"{{organization_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{service_url}}/admin-api/manage/v1/api-keys",
+                  "host": ["{{service_url}}"],
+                  "path": ["admin-api", "manage", "v1", "api-keys"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get API key",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{service_url}}/admin-api/manage/v1/api-keys/{{api_key_id}}",
+                  "host": ["{{service_url}}"],
+                  "path": ["admin-api", "manage", "v1", "api-keys", "{{api_key_id}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get all API keys",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{service_url}}/admin-api/manage/v1/api-keys?organization_id={{organization_id}}",
+                  "host": ["{{service_url}}"],
+                  "path": ["admin-api", "manage", "v1", "api-keys"],
+                  "query": [
+                    {
+                      "key": "",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "organization_id",
+                      "value": "{{organization_id}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete API key",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{service_url}}/admin-api/manage/v1/api-keys/{{api_key_id}}",
+                  "host": ["{{service_url}}"],
+                  "path": ["admin-api", "manage", "v1", "api-keys", "{{api_key_id}}"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Delete organization",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{service_url}}/admin-api/manage/v1/organizations/{{organization_id}}",
+              "host": ["{{service_url}}"],
+              "path": ["admin-api", "manage", "v1", "organizations", "{{organization_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Statistics",
+      "item": [
+        {
+          "name": "Database Cleanup Jobs",
+          "item": [
+            {
+              "name": "Get all Database Cleanup Jobs",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{service_url}}/admin-api/statistics/v1/database-cleanup-jobs",
+                  "host": ["{{service_url}}"],
+                  "path": ["admin-api", "statistics", "v1", "database-cleanup-jobs"]
+                }
+              },
+              "response": [],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var jsonData = JSON.parse(responseBody);",
+                      "pm.test(\"At least one DB cleanup job exists\", function () {",
+                      "    pm.expect(jsonData.items).to.be.an(\"array\");",
+                      "    pm.expect(jsonData.items.length).to.be.above(0);",
+                      "    postman.setEnvironmentVariable(\"cleanup_job_uuid\", jsonData.items[0].id);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Get Database Cleanup Job",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{service_url}}/admin-api/statistics/v1/database-cleanup-jobs/{{cleanup_job_uuid}}",
+                  "host": ["{{service_url}}"],
+                  "path": [
+                    "admin-api",
+                    "statistics",
+                    "v1",
+                    "database-cleanup-jobs",
+                    "{{cleanup_job_uuid}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Status",
+      "item": [
+        {
+          "name": "Get event-callback status for all app-configs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{service_url}}/admin-api/status/v1/callback",
+              "host": ["{{service_url}}"],
+              "path": ["admin-api", "status", "v1", "callback"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "password",
+        "value": "{{key_secret_admin}}",
+        "type": "string"
+      },
+      {
+        "key": "username",
+        "value": "{{key_id_admin}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test(\"HTTP status is 2xx\", function () {",
+          "    pm.expect(pm.response.code).to.be.within(200, 299);",
+          "});"
+        ]
+      }
+    }
+  ]
+}

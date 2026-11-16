@@ -369,6 +369,16 @@ const EDITOR: SettingGroup = {
             options: AUTO_CLOSING,
         },
 
+        // Layout
+
+        {
+            key: 'wordWrap',
+            control: 'switch',
+            label: 'Word wrap',
+            description:
+                'Long lines break at the edge of the editor instead of scrolling sideways. ⌥Z on a Mac, Alt+Z on Windows switches it, as in VS Code.',
+        },
+
         // Formatting
 
         {

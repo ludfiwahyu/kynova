@@ -1,4 +1,5 @@
 import { ancestorNames, type ItemsById, rootCollection } from '@/utils/collections/tree'
+import { toSendableJson } from '@/utils/json/jsonStyle'
 import { textValue } from '#shared/auth.ts'
 import type { Environment, HttpItem, Item, KeyValue } from '#shared/types.ts'
 
@@ -106,7 +107,7 @@ function requestIssues(
     }
 
     if (request.body.type === 'raw' && request.body.language === 'json') {
-        const problem = jsonProblem(request.body.text)
+        const problem = jsonProblem(toSendableJson(request.body.text))
 
         if (problem) {
             add('error', `The JSON body is not valid: ${problem}`)

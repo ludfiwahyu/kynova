@@ -252,26 +252,46 @@ export function setBottomPanel(panel: BottomPanel | null): void {
 
 // ── Tabs ─────────────────────────────────────────────────────────────────
 
+export interface OpenTabOptions {
+    /** Single click in the sidebar: takes the place of the preview tab, if there is one. */
+    preview?: boolean
+    /** Where the tab goes in the strip (a drop on it); also moves a tab that is already open. */
+    at?: number
+    /** Opens without switching to it (middle click); the first tab opened still becomes active. */
+    background?: boolean
+}
+
 /**
  * Opens a tab, or switches to it when it is already open.
- * A preview opening replaces the current preview tab in its place.
+ * Only a preview opening replaces anything, and only the preview tab: open tabs stay.
  */
-export function openTab(tab: Tab, { preview: asPreview = false } = {}): void {
+export function openTab(
+    tab: Tab,
+    { preview: asPreview = false, at, background = false }: OpenTabOptions = {},
+): void {
     // Settings › General can turn preview tabs off.
     const preview = asPreview && !usePreferences.getState().alwaysOpenInNewTab
 
     useUi.setState((state) => {
-        if (state.tabs.some((open) => isSameTab(open, tab))) {
-            // Opening an open tab for real (double-click, edit) makes it permanent.
+        const activeTab = background && state.activeTab ? state.activeTab : tab
+        const tabs = state.tabs.filter((open) => !isSameTab(open, tab))
+        const isOpen = tabs.length < state.tabs.length
+
+        if (isOpen) {
+            // Opening an open tab for real (double-click, edit, drop) makes it permanent.
             const isPreview = isSameTab(state.previewTab, tab)
 
+            if (at !== undefined) {
+                tabs.splice(Math.min(at, tabs.length), 0, tab)
+            }
+
             return {
-                activeTab: tab,
+                tabs: at === undefined ? state.tabs : tabs,
+                activeTab,
                 previewTab: isPreview && !preview ? null : state.previewTab,
             }
         }
 
-        const tabs = [...state.tabs]
         const previewIndex = state.previewTab
             ? tabs.findIndex((open) => isSameTab(open, state.previewTab))
             : -1
@@ -279,12 +299,12 @@ export function openTab(tab: Tab, { preview: asPreview = false } = {}): void {
         if (preview && previewIndex !== -1) {
             tabs[previewIndex] = tab
         } else {
-            tabs.push(tab)
+            tabs.splice(Math.min(at ?? tabs.length, tabs.length), 0, tab)
         }
 
         return {
             tabs,
-            activeTab: tab,
+            activeTab,
             previewTab: preview ? tab : state.previewTab,
         }
     })

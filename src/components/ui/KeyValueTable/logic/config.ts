@@ -1,6 +1,8 @@
-import type { ViewMode, ViewModeConfig } from '@/components/ui/KeyValueTable/types'
+import type { ViewModeConfig } from '@/components/ui/KeyValueTable/types'
 
 export const OFF_PREFIX = '//'
+
+export const ADD_ICON_SIZE = 14
 
 export const BULK_MIN_ROWS = 6
 
@@ -11,16 +13,16 @@ export const COLUMNS = {
     description: 'Description',
 }
 
-const BULK_HINT = 'One per line, as key:value. Start a line with // to switch it off.'
+export const MODE_ICON_SIZE = 13
 
-export const VIEW_MODES: Record<ViewMode, ViewModeConfig> = {
-    table: {
-        toggleLabel: 'Bulk Edit',
-        hint: '',
+/** The two ways to edit, in the order of the segmented control. */
+export const VIEW_MODES: ViewModeConfig[] = [
+    {
+        mode: 'table',
+        label: 'Table',
     },
-
-    bulk: {
-        toggleLabel: 'Key-Value Edit',
-        hint: BULK_HINT,
+    {
+        mode: 'bulk',
+        label: 'Bulk Edit',
     },
-}
+]

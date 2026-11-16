@@ -60,6 +60,7 @@ export function EnvironmentView({ environment }: EnvironmentViewProps) {
                     disabled={!view.canEdit}
                     variables={view.variables}
                     keyLabel="Variable"
+                    addLabel="Add variable"
                 />
             </div>
         </div>

@@ -60,6 +60,7 @@ export function VariablesPanel(props: VariablesPanelProps) {
                                         disabled={!panel.canEdit}
                                         description={false}
                                         variables={panel.variables}
+                                        addLabel="Add variable"
                                         onChange={panel.changeEnvironment}
                                     />
                                 </>

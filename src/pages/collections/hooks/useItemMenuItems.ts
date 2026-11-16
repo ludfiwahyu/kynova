@@ -6,7 +6,6 @@ import {
     createWebSocketRequest,
     duplicateRequest,
     openTab,
-    useUi,
     useWorkspace,
 } from '@/stores'
 import { downloadText, exportCollection } from '@/utils'
@@ -38,13 +37,10 @@ export function useItemMenuItems(item: Item) {
 
         const copy = duplicateRequest(item as Parameters<typeof duplicateRequest>[0])
 
-        openTab(
-            {
-                kind: 'item',
-                id: copy.id,
-            },
-            { preview: !useUi.getState().activeTab },
-        )
+        openTab({
+            kind: 'item',
+            id: copy.id,
+        })
     }
 
     function remove() {

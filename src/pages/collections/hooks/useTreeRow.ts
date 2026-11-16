@@ -144,6 +144,14 @@ export function useTreeRow({ item, depth, visible }: TreeRowProps) {
         keepTab(tab)
     }
 
+    // Middle click: a tab of its own, behind the current one.
+    function openBehind(event: MouseEvent) {
+        if (event.button === 1) {
+            event.preventDefault()
+            openTab(tab, { background: true })
+        }
+    }
+
     function stopClick(event: MouseEvent) {
         event.stopPropagation()
     }
@@ -276,7 +284,7 @@ export function useTreeRow({ item, depth, visible }: TreeRowProps) {
         dropZone: dropZone ?? undefined,
         isDragged: isDragged || undefined,
         isLanded: isLanded || undefined,
-        draggable: canEdit && !isRenaming,
+        draggable: !isRenaming,
         showGroup,
         showEmptyNote,
         showActions,
@@ -293,6 +301,7 @@ export function useTreeRow({ item, depth, visible }: TreeRowProps) {
         prepareContextMenu,
         addRequest,
         keep,
+        openBehind,
         stopClick,
         foldOnly,
         handleClick,

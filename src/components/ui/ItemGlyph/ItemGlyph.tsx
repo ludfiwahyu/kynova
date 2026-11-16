@@ -45,6 +45,7 @@ export function ItemGlyph({ item }: { item: Item }) {
             <Folder
                 size={14}
                 className="item-icon"
+                data-kind="folder"
             />
         )
     }

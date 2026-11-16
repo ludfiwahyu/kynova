@@ -47,6 +47,7 @@ export function TreeRow(props: TreeRowProps) {
                 onDragEnd={row.drag.dragEnd}
                 onClick={row.handleClick}
                 onDoubleClick={row.keep}
+                onAuxClick={row.openBehind}
                 onKeyDown={row.handleKeyDown}
                 onContextMenu={(event) => {
                     row.prepareContextMenu()

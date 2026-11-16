@@ -12,13 +12,27 @@ export function TabStrip() {
     const hasTabs = strip.tabs.length > 0
 
     return (
-        <div className="tab-strip">
+        <div
+            className="tab-strip"
+            data-dropping={strip.explorerDrop.isOver || undefined}
+            onDragOver={strip.explorerDrop.dragOver}
+            onDragLeave={strip.explorerDrop.dragLeave}
+            onDrop={strip.explorerDrop.drop}
+        >
             <div
                 ref={strip.stripRef}
                 className="doc-tabs"
                 role="tablist"
                 aria-label="Open tabs"
             >
+                {strip.dropMarkerLeft !== null && (
+                    <span
+                        className="tab-drop-marker"
+                        aria-hidden="true"
+                        style={{ left: strip.dropMarkerLeft }}
+                    />
+                )}
+
                 {strip.tabs.map((tab) => (
                     <TabButton
                         key={strip.tabKey(tab)}

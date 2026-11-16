@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 
 import { confirm } from '@/components'
+import { useExplorerDrop } from '@/layouts/Workbench/hooks/useExplorerDrop'
 import { useTabDrag } from '@/layouts/Workbench/hooks/useTabDrag'
 import { useTabLayout } from '@/layouts/Workbench/hooks/useTabLayout'
 import { TAB_LEAVE } from '@/layouts/Workbench/logic/config'
@@ -30,6 +31,33 @@ export function useTabStrip() {
 
     useTabLayout(layout, tabs)
     const startDrag = useTabDrag(layout)
+
+    const elementOf = (tab: Tab) => layout.elements.current.get(tabKey(tab))
+
+    // A drop from the sidebar lands before the first tab whose middle is right of the pointer.
+    function indexAt(clientX: number): number {
+        return tabs.filter((tab) => {
+            const box = elementOf(tab)?.getBoundingClientRect()
+
+            return box && box.left + box.width / 2 < clientX
+        }).length
+    }
+
+    const explorerDrop = useExplorerDrop(indexAt)
+
+    function markerLeft(index: number): number {
+        const next = tabs[index] && elementOf(tabs[index])
+        const last = tabs.at(-1) && elementOf(tabs.at(-1)!)
+
+        if (next) {
+            return next.offsetLeft
+        }
+
+        return last ? last.offsetLeft + last.offsetWidth : 0
+    }
+
+    const dropMarkerLeft =
+        explorerDrop.dropIndex === null ? null : markerLeft(explorerDrop.dropIndex)
 
     // Fades the tab out, then closes it; the ones to its right glide over.
     async function closeWithFade(tab: Tab) {
@@ -74,6 +102,8 @@ export function useTabStrip() {
         stripRef: layout.stripRef,
         tabKey,
         startDrag,
+        explorerDrop,
+        dropMarkerLeft,
         closeWithFade,
         register,
         newRequest,

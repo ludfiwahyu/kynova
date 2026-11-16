@@ -4,7 +4,7 @@ import { placeDragged } from '@/layouts/Workbench/hooks/useTabLayout'
 import { DRAG_THRESHOLD } from '@/layouts/Workbench/logic/config'
 import { tabKey } from '@/layouts/Workbench/logic/helpers'
 import type { TabLayout } from '@/layouts/Workbench/types'
-import { moveTab, type Tab, useUi } from '@/stores'
+import { keepTab, moveTab, type Tab, useUi } from '@/stores'
 import { glide } from '@/utils'
 
 /** Dragging a tab along the strip reorders it; a press without moving is a click. */
@@ -30,6 +30,8 @@ export function useTabDrag(layout: TabLayout) {
             if (!moved) {
                 moved = true
                 element.dataset.dragging = 'true'
+                // Placing a preview tab is choosing to keep it.
+                keepTab(tab)
             }
 
             drag.current = {

@@ -1,7 +1,7 @@
 import type { KeyboardEvent, MouseEvent } from 'react'
 
 import { useActiveEnvironment } from '@/hooks'
-import { confirmDelete, exportEnvironment } from '@/pages/environments/logic/helpers'
+import { confirmDelete, downloadEnvironment } from '@/pages/environments/logic/helpers'
 import {
     duplicateEnvironment,
     editNameSoon,
@@ -39,6 +39,14 @@ export function useEnvironmentRow(environment: Environment) {
         keepTab(tab)
     }
 
+    // Middle click: a tab of its own, behind the current one.
+    function openBehind(event: MouseEvent) {
+        if (event.button === 1) {
+            event.preventDefault()
+            openTab(tab, { background: true })
+        }
+    }
+
     function toggleActive() {
         selectEnvironment(workspaceId, isActive ? null : environment.id)
     }
@@ -65,7 +73,7 @@ export function useEnvironmentRow(environment: Environment) {
     }
 
     function exportFile() {
-        exportEnvironment(environment)
+        downloadEnvironment(environment)
     }
 
     function remove() {
@@ -91,6 +99,7 @@ export function useEnvironmentRow(environment: Environment) {
         toggleLabel,
         open,
         keep,
+        openBehind,
         toggleActive,
         setColor,
         rename,

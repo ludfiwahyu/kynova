@@ -26,7 +26,8 @@ export const JSON_STYLES: {
 
 type Token =
     | {
-          kind: 'space' | 'punct'
+          /** `comment`: a line switched off with `//` (⌘/), up to the end of the line. */
+          kind: 'space' | 'punct' | 'comment'
           text: string
       }
     | {
@@ -81,18 +82,34 @@ function tokenize(text: string): Token[] {
         throw new NotJson()
     }
 
+    /** Whitespace, and `//` comments to the end of their line, wherever whitespace may be. */
     function space() {
-        const start = i
+        while (i < text.length) {
+            const start = i
 
-        while (i < text.length && /\s/.test(text[i])) {
-            i++
-        }
+            while (i < text.length && /\s/.test(text[i])) {
+                i++
+            }
 
-        if (i > start) {
+            if (i > start) {
+                tokens.push({
+                    kind: 'space',
+                    text: text.slice(start, i),
+                })
+            }
+
+            if (!text.startsWith('//', i)) {
+                return
+            }
+
+            const lineEnd = text.indexOf('\n', i)
+            const stop = lineEnd === -1 ? text.length : lineEnd
+
             tokens.push({
-                kind: 'space',
-                text: text.slice(start, i),
+                kind: 'comment',
+                text: text.slice(i, stop),
             })
+            i = stop
         }
     }
 
@@ -260,7 +277,10 @@ function tryTokenize(text: string): Token[] | null {
     }
 }
 
-/** A comma with only space before the closing bracket. JSON does not allow it. */
+/**
+ * A comma with only space before the closing bracket. JSON does not allow it.
+ * A comment in between keeps the comma: switching that line back on needs it.
+ */
 function isTrailingComma(tokens: Token[], index: number): boolean {
     if (tokens[index].text !== ',' || tokens[index].kind !== 'punct') {
         return false
@@ -318,7 +338,10 @@ function writeString(token: Extract<Token, { kind: 'string' }>, style: JsonStyle
 /** Whitespace only, which every style leaves alone. */
 const isBlank = (text: string) => text.trim() === ''
 
-/** Text in any style as plain JSON, or null when it is not JSON. Keeps spacing and line breaks. */
+/**
+ * Text in any style as plain JSON, or null when it is not JSON. Keeps spacing and line breaks,
+ * and `//` lines, which only `toSendableJson` takes out.
+ */
 export function toJson(text: string): string | null {
     if (isBlank(text)) {
         return text
@@ -376,10 +399,27 @@ export function formatJson(
 
     let out = ''
     let depth = 0
+    let afterComment = false
     const newLine = () => '\n' + indent.repeat(depth)
 
     for (let index = 0; index < tokens.length; index++) {
         const token = tokens[index]
+
+        // A `//` line keeps a line of its own, at the depth where it stands.
+        if (token.kind === 'comment') {
+            if (out && !/\n[ \t]*$/.test(out)) {
+                out += newLine()
+            }
+
+            out += token.text + newLine()
+            afterComment = true
+
+            continue
+        }
+
+        const wasAfterComment = afterComment
+
+        afterComment = false
 
         if (token.kind === 'string') {
             out += writeString(token, style)
@@ -398,10 +438,12 @@ export function formatJson(
         } else if (token.text === '}' || token.text === ']') {
             depth--
 
-            if (trailingComma) {
+            // After a `//` line the member before it already ends in its comma.
+            if (trailingComma && !wasAfterComment) {
                 out += ','
             }
 
+            out = out.replace(/\n[ \t]*$/, '')
             out += newLine() + token.text
         } else if (token.text === ',') {
             if (!isTrailingComma(tokens, index)) {
@@ -424,6 +466,13 @@ export function highlightStyled(text: string): JsonToken[] {
     }
 
     return tokens.map((token): JsonToken => {
+        if (token.kind === 'comment') {
+            return {
+                text: token.text,
+                kind: 'comment',
+            }
+        }
+
         if (token.kind === 'space' || token.kind === 'punct') {
             return {
                 text: token.text,
@@ -443,4 +492,24 @@ export function highlightStyled(text: string): JsonToken[] {
             kind: token.kind,
         }
     })
+}
+
+/** A line whose first characters are `//`: switched off with ⌘/ or Ctrl+/. */
+const COMMENT_LINE = /^[ \t]*\/\/.*(?:\r?\n|$)/gm
+
+/**
+ * A JSON body as it is sent: `//` lines taken out, and a comma left before a closing bracket
+ * dropped. JSON strings cannot hold a line break, so such a line is never inside a string.
+ * Text without `//` lines goes out as written.
+ */
+export function toSendableJson(text: string): string {
+    COMMENT_LINE.lastIndex = 0
+
+    if (!COMMENT_LINE.test(text)) {
+        return text
+    }
+
+    const kept = text.replace(COMMENT_LINE, '')
+
+    return toJson(kept) ?? kept
 }

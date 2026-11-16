@@ -1,3 +1,4 @@
+import type { CodeLanguage } from '@/components'
 import type { SendRequest } from '#shared/types.ts'
 
 export type SnippetLanguage =
@@ -18,11 +19,28 @@ export type SnippetLanguage =
     | 'python'
     | 'ruby'
 
-/** The snippets the editor can colour as JavaScript; the others show as plain text. */
-const JAVASCRIPT_SNIPPETS: SnippetLanguage[] = ['fetch', 'xhr', 'axios']
+/** How the code editor colours each snippet. */
+const SNIPPET_EDITOR_LANGUAGES: Record<SnippetLanguage, CodeLanguage> = {
+    'c-libcurl': 'c',
+    'csharp-httpclient': 'csharp',
+    'csharp-restsharp': 'csharp',
+    curl: 'shell',
+    'dart-dio': 'dart',
+    'dart-http': 'dart',
+    go: 'go',
+    http: 'http',
+    'java-okhttp': 'java',
+    'java-unirest': 'java',
+    fetch: 'javascript',
+    xhr: 'javascript',
+    axios: 'javascript',
+    'php-curl': 'php',
+    python: 'python',
+    ruby: 'ruby',
+}
 
-export function snippetEditorLanguage(language: SnippetLanguage): 'javascript' | 'text' {
-    return JAVASCRIPT_SNIPPETS.includes(language) ? 'javascript' : 'text'
+export function snippetEditorLanguage(language: SnippetLanguage): CodeLanguage {
+    return SNIPPET_EDITOR_LANGUAGES[language]
 }
 
 export const SNIPPET_LANGUAGES: {

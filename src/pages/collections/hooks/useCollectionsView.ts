@@ -1,4 +1,4 @@
-import type { ChangeEvent } from 'react'
+import type { ChangeEvent, DragEvent } from 'react'
 import { useMemo, useRef, useState } from 'react'
 
 import { useRowGlide } from '@/pages/collections/hooks/useRowGlide'
@@ -9,6 +9,7 @@ import {
     expand,
     openTab,
     openWorkspaceTab,
+    saveEnvironment,
     saveItems,
     useCanEdit,
     useUi,
@@ -16,7 +17,7 @@ import {
     useWorkspaceId,
     useWorkspaceSettings,
 } from '@/stores'
-import { childrenOf, importCollection, nextOrder } from '@/utils'
+import { childrenOf, importFile, nextOrder } from '@/utils'
 
 export function useCollectionsView() {
     const items = useWorkspace((state) => state.items)
@@ -30,6 +31,7 @@ export function useCollectionsView() {
 
     const [filter, setFilter] = useState('')
     const [importError, setImportError] = useState<string | null>(null)
+    const [isDropping, setDropping] = useState(false)
 
     useRowGlide(treeRef, [items, expanded])
 
@@ -55,24 +57,51 @@ export function useCollectionsView() {
         })
     }
 
-    async function importFile(file: File | undefined) {
-        if (!file) {
+    /** Imports each file as a collection or an environment, whichever it is. */
+    async function importFiles(files: File[]) {
+        if (files.length === 0) {
             return
         }
 
-        try {
-            const imported = importCollection(await file.text(), nextOrder(items, null))
+        const errors: string[] = []
+        let order = nextOrder(items, null)
+        let opened = false
 
-            saveItems(imported)
-            expand(imported[0].id)
-            openTab({
-                kind: 'item',
-                id: imported[0].id,
-            })
-            setImportError(null)
-        } catch (error) {
-            setImportError((error as Error).message)
+        for (const file of files) {
+            try {
+                const imported = importFile(await file.text(), order)
+
+                if (imported.kind === 'collection') {
+                    const [collection] = imported.items
+
+                    saveItems(imported.items)
+                    expand(collection.id)
+                    order += 1
+
+                    if (!opened) {
+                        openTab({
+                            kind: 'item',
+                            id: collection.id,
+                        })
+                    }
+                } else {
+                    saveEnvironment(imported.environment)
+
+                    if (!opened) {
+                        openTab({
+                            kind: 'environment',
+                            id: imported.environment.id,
+                        })
+                    }
+                }
+
+                opened = true
+            } catch (error) {
+                errors.push(`${file.name}: ${(error as Error).message}`)
+            }
         }
+
+        setImportError(errors.length > 0 ? errors.join('\n') : null)
     }
 
     function chooseFile() {
@@ -80,8 +109,38 @@ export function useCollectionsView() {
     }
 
     function handleFile(event: ChangeEvent<HTMLInputElement>) {
-        void importFile(event.target.files?.[0])
+        void importFiles(Array.from(event.target.files ?? []))
         event.target.value = ''
+    }
+
+    const carriesFiles = (event: DragEvent<HTMLElement>) =>
+        canEdit && event.dataTransfer.types.includes('Files')
+
+    function dragOver(event: DragEvent<HTMLElement>) {
+        if (!carriesFiles(event)) {
+            return
+        }
+
+        event.preventDefault()
+        event.dataTransfer.dropEffect = 'copy'
+        setDropping(true)
+    }
+
+    function dragLeave(event: DragEvent<HTMLElement>) {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+            setDropping(false)
+        }
+    }
+
+    function drop(event: DragEvent<HTMLElement>) {
+        setDropping(false)
+
+        if (!carriesFiles(event)) {
+            return
+        }
+
+        event.preventDefault()
+        void importFiles(Array.from(event.dataTransfer.files))
     }
 
     function openOverview() {
@@ -98,6 +157,7 @@ export function useCollectionsView() {
         treeRef,
         filter,
         importError,
+        isDropping,
         visible,
         collections,
         isEmpty,
@@ -108,6 +168,9 @@ export function useCollectionsView() {
         newCollection,
         chooseFile,
         handleFile,
+        dragOver,
+        dragLeave,
+        drop,
         openOverview,
         openCustomize,
     }

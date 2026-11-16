@@ -14,6 +14,9 @@ if (process.env.KYNOVA_USER_DATA) {
     app.setPath('userData', process.env.KYNOVA_USER_DATA)
 }
 
+/** Live coding: `npm run desktop:dev` points the window at the Vite dev server instead of the bundled one. */
+const DEV_URL = process.env.KYNOVA_DEV_URL
+
 let server: Electron.UtilityProcess | null = null
 let origin = ''
 let quitting = false
@@ -54,6 +57,14 @@ async function whenAnswering(url: string, timeoutMs = 20_000): Promise<void> {
 }
 
 async function startServer(): Promise<void> {
+    if (DEV_URL) {
+        origin = new URL(DEV_URL).origin
+
+        await whenAnswering(origin, 60_000)
+
+        return
+    }
+
     const port = await freePort()
 
     origin = `http://127.0.0.1:${port}`
@@ -120,6 +131,17 @@ function openWindow(): BrowserWindow {
     })
 
     window.once('ready-to-show', () => window.show())
+
+    // ⌘= or Ctrl+= zooms in, as in browsers. Electron's own menu only takes ⌘+ (Shift on most
+    // keyboards); its ⌘- and ⌘0 already match. The step is the menu's.
+    window.webContents.on('before-input-event', (event, input) => {
+        const mod = process.platform === 'darwin' ? input.meta : input.control
+
+        if (input.type === 'keyDown' && mod && !input.shift && !input.alt && input.key === '=') {
+            event.preventDefault()
+            window.webContents.setZoomLevel(window.webContents.getZoomLevel() + 0.5)
+        }
+    })
 
     // The app stays on its own server; anything else opens in the browser.
     window.webContents.on('will-navigate', (event, url) => {
