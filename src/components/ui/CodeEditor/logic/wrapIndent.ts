@@ -24,6 +24,28 @@ export function indentColumns(text: string, tabSize: number): number {
     return columns
 }
 
+const hangs = new Map<number, Decoration>()
+
+/**
+ * A line's wrapped rows start one indent unit right of its first character, so they never reach
+ * left into the indent guides. The first row is pulled back by the same amount. The guides are
+ * placed from `--line-pad`, not from the text, so this padding does not move them.
+ */
+function hang(columns: number): Decoration {
+    let decoration = hangs.get(columns)
+
+    if (!decoration) {
+        decoration = Decoration.line({
+            attributes: {
+                style: `padding-left: calc(var(--line-pad) + ${columns}ch + var(--guide-unit)); text-indent: calc(-${columns}ch - var(--guide-unit))`,
+            },
+        })
+        hangs.set(columns, decoration)
+    }
+
+    return decoration
+}
+
 function build(view: EditorView): DecorationSet {
     const { state } = view
     const ranges: Range<Decoration>[] = []
@@ -40,19 +62,7 @@ function build(view: EditorView): DecorationSet {
             }
 
             last = line.from
-
-            const columns = indentColumns(line.text, state.tabSize)
-
-            if (columns > 0) {
-                // The first line is pulled back by what the padding added, so only the wrapped ones sit under the key.
-                ranges.push(
-                    Decoration.line({
-                        attributes: {
-                            style: `padding-left: calc(var(--space-2) + ${columns}ch); text-indent: -${columns}ch`,
-                        },
-                    }).range(line.from),
-                )
-            }
+            ranges.push(hang(indentColumns(line.text, state.tabSize)).range(line.from))
         }
     }
 
@@ -60,8 +70,9 @@ function build(view: EditorView): DecorationSet {
 }
 
 /**
- * With word wrap on, the lines that wrap start under the first character of their line,
- * never further left (VS Code's wrappingIndent "same"). Measured in `ch`, so it needs the monospace code font.
+ * With word wrap on, a long line wraps at the edge of the text area (before the minimap), and
+ * its wrapped rows start one indent unit right of the line's first character, like VS Code's
+ * wrappingIndent "indent". Measured in `ch`, so it needs the monospace code font.
  */
 export const wrapIndent: Extension = ViewPlugin.fromClass(
     class {

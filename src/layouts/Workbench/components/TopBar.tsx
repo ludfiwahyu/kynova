@@ -2,6 +2,7 @@ import { MailPlus } from 'lucide-react'
 
 import { Button, Logo } from '@/components'
 import { AccountMenu } from '@/layouts/Workbench/components/AccountMenu'
+import { DesktopMenu } from '@/layouts/Workbench/components/DesktopMenu'
 import { QuickSearch } from '@/layouts/Workbench/components/QuickSearch'
 import { SettingsMenu } from '@/layouts/Workbench/components/SettingsMenu'
 import { WorkspaceMenu } from '@/layouts/Workbench/components/WorkspaceMenu'
@@ -17,6 +18,7 @@ export function TopBar() {
         <header className="topbar">
             <div className="topbar-start">
                 <Logo size={LOGO_SIZE} />
+                <DesktopMenu />
                 <WorkspaceMenu />
             </div>
 

@@ -73,6 +73,70 @@
     grid-row: status;
 }
 
+/* ── Desktop window ──────────────────────────────────────────────────── */
+
+/* The desktop window has no title bar: the band where the top bar sits moves the window on every
+   screen, sign-in included. It lies under the page, so the page still takes clicks; anything that
+   takes clicks is left out of the band. A dialog's backdrop must close it, so the band goes then. */
+:root[data-desktop] #root::before {
+    content: '';
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: -1;
+    height: 44px;
+    -webkit-app-region: drag;
+}
+
+:root[data-desktop]:has(dialog[open]) #root::before {
+    display: none;
+}
+
+:root[data-desktop]
+    :is(
+        button,
+        input,
+        textarea,
+        select,
+        a,
+        [role='button'],
+        [role='combobox'],
+        [role='menuitem'],
+        [role='option'],
+        [role='tab'],
+        [tabindex]
+    ) {
+    -webkit-app-region: no-drag;
+}
+
+/* Room for the traffic lights, which leave in full screen. */
+:root[data-desktop='mac']:not([data-full-screen]) .topbar {
+    padding-left: 84px;
+}
+
+/* Room for the window buttons drawn over the right end: three of 46px. */
+:root[data-desktop='windows'] .topbar {
+    padding-right: 146px;
+}
+
+.desktop-menu {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.desktop-menu-item {
+    height: 28px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-sm);
+    color: var(--rail-ink);
+    font-size: var(--text-sm);
+}
+
+.desktop-menu-item:hover,
+.desktop-menu-item:focus-visible {
+    background: var(--rail-hover);
+}
+
 /* ── Top bar ─────────────────────────────────────────────────────────── */
 
 .topbar {

@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import { CALLBACK_PATH } from '@/utils'
+import { CALLBACK_PATH, startDesktopChrome } from '@/utils'
 
 import { App } from './App'
 
@@ -19,6 +19,8 @@ import './assets/styles/settings.css'
 
 // The OAuth 2.0 authorization window lands here; the window that opened it reads the URL and closes it.
 const isOAuthCallback = location.pathname === CALLBACK_PATH
+
+startDesktopChrome()
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
