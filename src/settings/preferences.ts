@@ -89,6 +89,9 @@ export interface Preferences {
     /** VS Code's editor.wordWrap: long lines break at the editor's edge instead of scrolling. ⌥Z / Alt+Z. */
     wordWrap: boolean
 
+    /** A double-click on a JSON key or value selects it with its quotes; off, without them. */
+    doubleClickSelectsQuotes: boolean
+
     /** Beautify ends the last member of every object and array with a comma, as JavaScript allows. Sent JSON stays plain. */
     trailingComma: boolean
 }
@@ -110,6 +113,7 @@ export const EDITOR_DEFAULTS = {
     formatOnBlur: true,
     trailingComma: false,
     wordWrap: false,
+    doubleClickSelectsQuotes: false,
 } as const
 
 export const SHAPE_DEFAULTS = {

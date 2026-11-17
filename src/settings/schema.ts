@@ -379,6 +379,16 @@ const EDITOR: SettingGroup = {
                 'Long lines break at the edge of the editor instead of scrolling sideways. ⌥Z on a Mac, Alt+Z on Windows switches it, as in VS Code.',
         },
 
+        // Selecting
+
+        {
+            key: 'doubleClickSelectsQuotes',
+            control: 'switch',
+            label: 'Double-click selects quotes',
+            description:
+                'Double-clicking a JSON key or value selects all of it. Off, the quotes stay out of the selection, so a copy gives the text alone; on, a copy gives "text" with its quotes.',
+        },
+
         // Formatting
 
         {

@@ -25,7 +25,9 @@ import {
 import { difference } from '@/components/ui/CodeEditor/logic/helpers'
 import { highlight } from '@/components/ui/CodeEditor/logic/highlightStyle'
 import { minimap } from '@/components/ui/CodeEditor/logic/minimap'
+import { stringDoubleClick } from '@/components/ui/CodeEditor/logic/stringSelection'
 import { vscodeEditing } from '@/components/ui/CodeEditor/logic/vscodeEditing'
+import { wrapIndent } from '@/components/ui/CodeEditor/logic/wrapIndent'
 import type { CodeEditorProps } from '@/components/ui/CodeEditor/types'
 import { setPreferences, usePreferences } from '@/settings'
 
@@ -84,6 +86,7 @@ export function useCodeMirror({
         variables: new Compartment(),
         label: new Compartment(),
         wrap: new Compartment(),
+        doubleClick: new Compartment(),
     }).current
     const { indentSize, indentType, autoClosingBrackets, autoClosingQuotes, wordWrap } =
         usePreferences()
@@ -112,7 +115,8 @@ export function useCodeMirror({
         ),
         variables: useMemo(() => (variables ? variableMarks(variables) : []), [variables]),
         label: useMemo(() => EditorView.contentAttributes.of({ 'aria-label': label }), [label]),
-        wrap: useMemo(() => (wordWrap ? EditorView.lineWrapping : []), [wordWrap]),
+        wrap: useMemo(() => (wordWrap ? [EditorView.lineWrapping, wrapIndent] : []), [wordWrap]),
+        doubleClick: useMemo(() => stringDoubleClick(language), [language]),
     }
 
     // The editor is made once; later prop changes reconfigure it below.
@@ -155,6 +159,7 @@ export function useCodeMirror({
                     compartments.variables.of(extensions.variables),
                     compartments.label.of(extensions.label),
                     compartments.wrap.of(extensions.wrap),
+                    compartments.doubleClick.of(extensions.doubleClick),
                     EditorView.updateListener.of((update) => {
                         const fromOutside = update.transactions.every((transaction) =>
                             transaction.annotation(Transaction.remote),
@@ -196,6 +201,7 @@ export function useCodeMirror({
                 compartments.variables.reconfigure(extensions.variables),
                 compartments.label.reconfigure(extensions.label),
                 compartments.wrap.reconfigure(extensions.wrap),
+                compartments.doubleClick.reconfigure(extensions.doubleClick),
             ],
         })
     }, [
@@ -207,6 +213,7 @@ export function useCodeMirror({
         extensions.variables,
         extensions.label,
         extensions.wrap,
+        extensions.doubleClick,
     ])
 
     // A change from elsewhere (a collaborator, Beautify, another style) replaces only what differs.
