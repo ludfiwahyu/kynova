@@ -83,6 +83,11 @@ interface UiState {
     pendingLink: PendingLink | null
     /** An item just created whose name should open for typing, in its tab or its tree row. */
     editNameOf: string | null
+    /** A variable the Variables panel should bring into view and focus; `at` makes a repeat count. */
+    revealedVariable: {
+        name: string
+        at: number
+    } | null
     /** The section the workspace tab shows. */
     workspaceSection: 'overview' | 'settings'
     /** The open section of app Settings, or `null` while Settings is closed. */
@@ -130,6 +135,7 @@ export const useUi = create<UiState>()(
             layout: DEFAULT_LAYOUT,
             pendingLink: null,
             editNameOf: null,
+            revealedVariable: null,
             workspaceSection: 'overview',
             settingsSection: null,
         }),
@@ -235,6 +241,28 @@ export function toggleRightPanel(panel: RightPanel): void {
                 : state.layout,
         }
     })
+}
+
+/** Opens the panel, leaving it open when it already is. */
+export function openRightPanel(panel: RightPanel): void {
+    if (useUi.getState().rightPanel !== panel) {
+        toggleRightPanel(panel)
+    }
+}
+
+/** Opens the Variables panel and asks it to focus `name`'s value, where it is defined. */
+export function revealVariable(name: string): void {
+    openRightPanel('variables')
+    useUi.setState({
+        revealedVariable: {
+            name,
+            at: Date.now(),
+        },
+    })
+}
+
+export function variableRevealed(): void {
+    useUi.setState({ revealedVariable: null })
 }
 
 export function closeRightPanel(): void {

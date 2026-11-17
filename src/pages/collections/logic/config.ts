@@ -39,3 +39,6 @@ export const GROUP_ENTER = {
 }
 
 export const EMPTY_NOTE_BASE_PADDING = 30
+
+/** Said in a hover label for a request that has no address yet. */
+export const NO_ADDRESS = 'No address yet'

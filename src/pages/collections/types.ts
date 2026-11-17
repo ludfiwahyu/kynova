@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 
 import type { useTreeRow } from '@/pages/collections/hooks/useTreeRow'
 import type { ArchiveEntry, Item, Presence } from '#shared/types.ts'
@@ -13,6 +13,19 @@ export interface TreeRowProps {
     item: Item
     depth: number
     visible: Set<string> | null
+}
+
+export interface ItemHoverLabelProps {
+    item: Item
+    /** A note under the address, such as what a preview tab is. */
+    hint?: string
+    children: ReactNode
+}
+
+/** A piece of an address in a hover label; missing ones are variables with no value. */
+export interface LabelPart {
+    text: string
+    isMissing?: boolean
 }
 
 export interface WatchersProps {

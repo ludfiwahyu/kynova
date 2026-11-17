@@ -41,3 +41,21 @@ export function withValue(rows: KeyValue[], name: string, value: string): KeyVal
         },
     ]
 }
+
+/** Focuses and selects the value of `name` in the panel; false when it cannot take the focus yet. */
+export function focusVariable(panel: HTMLElement, name: string): boolean {
+    const row = [...panel.querySelectorAll<HTMLElement>('[data-variable-row]')].find(
+        (candidate) => candidate.dataset.variableRow === name,
+    )
+    const input = row?.querySelector('input')
+
+    if (!input) {
+        return false
+    }
+
+    input.scrollIntoView({ block: 'nearest' })
+    input.focus()
+    input.select()
+
+    return document.activeElement === input
+}

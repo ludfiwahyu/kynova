@@ -14,3 +14,6 @@ export const NO_ENVIRONMENT = {
     value: '',
     label: 'No environment',
 }
+
+/** How long to wait before trying again to focus a variable in a panel that was still opening. */
+export const REVEAL_RETRY_MS = 250

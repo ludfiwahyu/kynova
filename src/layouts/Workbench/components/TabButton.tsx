@@ -1,10 +1,11 @@
 import { X } from 'lucide-react'
 
-import { Button, MenuItem, useContextMenu } from '@/components'
+import { Button, HoverLabel, MenuItem, useContextMenu } from '@/components'
 import { TabGlyph } from '@/layouts/Workbench/components/TabGlyph'
 import { useTabButton } from '@/layouts/Workbench/hooks/useTabButton'
 import { TAB_ICON_SIZE } from '@/layouts/Workbench/logic/config'
 import type { TabButtonProps } from '@/layouts/Workbench/types'
+import { ItemHoverLabel } from '@/pages/collections'
 import { closeAllTabs, closeOtherTabs } from '@/stores'
 
 export function TabButton(props: TabButtonProps) {
@@ -24,6 +25,26 @@ export function TabButton(props: TabButtonProps) {
         return null
     }
 
+    const tabMain = (
+        <Button
+            variant="plain"
+            className="doc-tab-main"
+            role="tab"
+            aria-selected={button.isActive}
+            onClick={button.open}
+            onDoubleClick={button.keep}
+            onKeyDown={button.handleKeyDown}
+        >
+            {button.showIcon && <TabGlyph label={button.label} />}
+            <span
+                className="steady-bold truncate"
+                data-text={button.label.name}
+            >
+                {button.label.name}
+            </span>
+        </Button>
+    )
+
     return (
         <div
             ref={button.attach}
@@ -35,24 +56,21 @@ export function TabButton(props: TabButtonProps) {
             onContextMenu={contextMenu.onContextMenu}
             onPointerDown={onPointerDown}
         >
-            <Button
-                variant="plain"
-                className="doc-tab-main"
-                role="tab"
-                aria-selected={button.isActive}
-                title={button.title}
-                onClick={button.open}
-                onDoubleClick={button.keep}
-                onKeyDown={button.handleKeyDown}
-            >
-                {button.showIcon && <TabGlyph label={button.label} />}
-                <span
-                    className="steady-bold truncate"
-                    data-text={button.label.name}
+            {button.label.item ? (
+                <ItemHoverLabel
+                    item={button.label.item}
+                    hint={button.previewHint}
                 >
-                    {button.label.name}
-                </span>
-            </Button>
+                    {tabMain}
+                </ItemHoverLabel>
+            ) : (
+                <HoverLabel
+                    title={button.label.name}
+                    hint={button.previewHint}
+                >
+                    {tabMain}
+                </HoverLabel>
+            )}
 
             <Button
                 variant="plain"

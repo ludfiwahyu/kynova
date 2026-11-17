@@ -14,7 +14,7 @@ export function useTabButton({ tab, register, onClose }: TabButtonProps) {
     const isDirty = useDraft(tab.kind === 'item' ? tab.id : undefined).isDirty
     const ref = useRef<HTMLDivElement>(null)
 
-    const title = isPreview ? `${label?.name} (preview: double-click to keep it open)` : label?.name
+    const previewHint = isPreview ? 'Preview tab: double-click to keep it open' : undefined
 
     // Keeps the active tab in view when there are more tabs than room.
     useEffect(() => {
@@ -69,7 +69,7 @@ export function useTabButton({ tab, register, onClose }: TabButtonProps) {
         isActive,
         isPreview,
         showIcon,
-        title,
+        previewHint,
         closeLabel: `Close ${label?.name}`,
         attach,
         open,

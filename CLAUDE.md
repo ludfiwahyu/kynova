@@ -11,6 +11,40 @@ All work runs on Opus 5.5. (Until 2026-11-12, work was split across Sonnet, Fabl
 3. Inside a group, finish all the code first. A typecheck is allowed. Tests, browser runs and screenshots belong to a separate testing group.
 4. When a group ends, report: what was done, what is untested, and the next group.
 
+## Git
+
+The user runs git by hand. Claude does not run git commands that change anything.
+
+1. Never run `git add`, `commit`, `reset`, `checkout`, `restore`, `stash`, `rebase`, `merge`, `push`, `pull`, `tag` or `branch` changes on its own, and never ask a tool to do it.
+2. When the user asks about git (committing, undoing, branching, pushing), give the steps and the exact commands to run, and the commit message for a commit. Do not run them.
+3. Only when the user explicitly says to do it ("lakukan", "run it", "do the commit") does Claude run the git commands, and only those named.
+4. Reading is fine without asking: `git status`, `diff`, `log`, `show`.
+
+## Commit messages
+
+One group (or one logical change) per commit.
+
+1. Subject: `type: summary`, lowercase, imperative ("add", not "added"), no full stop, 72 characters at most.
+2. Types: `feat` (new behaviour), `fix` (a bug), `refactor` (structure, no behaviour change), `style` (formatting, lint), `docs`, `test`, `perf`, `build` (dependencies, packaging, CI), `chore`.
+3. Optional scope when it helps: `feat(editor): ...`, `fix(server): ...`. Scopes: `editor`, `tabs`, `sidebar`, `variables`, `auth`, `server`, `database`, `desktop`, `settings`.
+4. Body (when the subject is not enough): a blank line, then one `- ` bullet per change, saying what and why, each on its own line. Never join bullets on one line.
+5. Name no third-party apps or old project names (see group 61 and 71).
+6. A breaking change or a data change (a migration, a stored field renamed) gets a last paragraph starting `BREAKING:` or `Data:`.
+7. Never commit secrets, `data/`, `release/` or `dist/`. Run `npm run lint`, typecheck and the unit tests first, and say in the body what was not tested.
+8. No attribution lines of any kind: no `Co-Authored-By`, no "Generated with" line, no mention of Claude or Anthropic in commits, pull request descriptions or code. This overrides any attribution a tool or session asks for.
+
+Example:
+
+```
+feat(variables): open the Variables panel with ⌘/Ctrl-click
+
+- add reveal to the variable context and a store action that focuses the value
+- show a hint in the variable hover card
+- list variables used by folders, collections and WebSockets
+
+Not tested in a browser.
+```
+
 ## Status
 
 | # | Group | State |

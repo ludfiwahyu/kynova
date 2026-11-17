@@ -404,8 +404,6 @@ The full list of dependencies and their licenses is in `package.json` and `node_
 
 The Kynova name and logo (`public/favicon.svg`) belong to the project. Forks are welcome to use them to say where they come from, but a modified version should use its own name and logo so people can tell them apart.
 
-Kynova was written with [Claude](https://claude.com/claude-code) (Anthropic); commits made with it carry a `Co-Authored-By: Claude` line.
-
 ---
 
 <p align="center"><sub>Kynova · built entirely by AI · in development · MIT License</sub></p>

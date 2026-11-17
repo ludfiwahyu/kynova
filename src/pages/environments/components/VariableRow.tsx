@@ -7,7 +7,10 @@ export function VariableRow(props: VariableRowProps) {
     const row = useVariableRow(props)
 
     return (
-        <div className="variable-row">
+        <div
+            className="variable-row"
+            data-variable-row={name}
+        >
             <span className="variable-name">
                 <ScopeBadge scope={scope} />
                 <span className="truncate">{name}</span>

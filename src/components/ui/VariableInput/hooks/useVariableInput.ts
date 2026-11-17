@@ -1,5 +1,6 @@
 import {
     type KeyboardEvent,
+    type MouseEvent,
     useContext,
     useId,
     useLayoutEffect,
@@ -201,6 +202,26 @@ export function useVariableInput({
         )
     }
 
+    // ⌘ or Ctrl and a click on a variable opens it for editing in the Variables panel.
+    function handleClick(event: MouseEvent<HTMLInputElement>) {
+        const input = inputRef.current
+
+        if (!(event.metaKey || event.ctrlKey) || !context?.reveal || !input) {
+            return
+        }
+
+        const found = placeholderAt(value, indexAt(input, event.clientX))
+
+        if (!found) {
+            return
+        }
+
+        event.preventDefault()
+        clearTimeout(hoverTimer.current)
+        setHovered(null)
+        context.reveal(found.name.trim())
+    }
+
     function handleChange(text: string, caret: number | null) {
         onChange(text)
         updateSuggestions(text, caret)
@@ -237,6 +258,7 @@ export function useVariableInput({
         choose,
         handleKeyDown,
         handlePointerMove,
+        handleClick,
         handleChange,
         handleBlur,
         handleSelect,

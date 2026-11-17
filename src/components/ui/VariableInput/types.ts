@@ -30,6 +30,8 @@ export interface VariableDetailsProps {
     environmentName?: string
     /** Saves a new value where the variable is defined; absent when it cannot be changed here. */
     onSave?: (entry: VariableEntry, value: string) => void
+    /** Written under the value: what ⌘ or Ctrl and a click do. Absent when nothing opens. */
+    revealHint?: string
     position: {
         left: number
         top: number
@@ -45,6 +47,8 @@ export interface VariableContextValue {
     environmentName?: string
     /** Changes a variable's value where it is defined. Absent when this person cannot edit. */
     setValue?: (entry: VariableEntry, value: string) => void
+    /** Opens where a variable is edited (the Variables panel) with that variable in focus. */
+    reveal?: (name: string) => void
 }
 
 export interface VariableInputOptions {

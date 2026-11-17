@@ -4,7 +4,11 @@ import { SuggestionList } from '@/components/ui/VariableInput/components/Suggest
 import { VariableDetails } from '@/components/ui/VariableInput/components/VariableDetails'
 import { useVariableInput } from '@/components/ui/VariableInput/hooks/useVariableInput'
 import { MIRROR_END } from '@/components/ui/VariableInput/logic/config'
-import { floatingContainer, pointUnder } from '@/components/ui/VariableInput/logic/helpers'
+import {
+    floatingContainer,
+    pointUnder,
+    revealHint,
+} from '@/components/ui/VariableInput/logic/helpers'
 import type { VariableInputProps } from '@/components/ui/VariableInput/types'
 import { classNames } from '@/components/utils/helpers'
 
@@ -16,7 +20,7 @@ import { classNames } from '@/components/utils/helpers'
  * - Typing `{{` lists the variables there are (the active environment's, the collection's
  *   and the dynamic ones); ↑ ↓ choose, Enter or Tab put it in, Esc closes the list.
  * - Resting the pointer on a variable shows its value and where it comes from, and lets
- *   an editor change it there.
+ *   an editor change it there. ⌘ or Ctrl and a click opens it in the Variables panel.
  */
 export function VariableInput({
     value,
@@ -77,6 +81,7 @@ export function VariableInput({
                     field.handleChange(event.target.value, event.target.selectionStart)
                 }
                 onKeyDown={field.handleKeyDown}
+                onClick={field.handleClick}
                 onBlur={field.handleBlur}
                 onScroll={field.syncScroll}
                 onSelect={(event) => field.handleSelect(event.currentTarget)}
@@ -102,6 +107,7 @@ export function VariableInput({
                         entry={field.hoveredEntry}
                         environmentName={context?.environmentName}
                         onSave={context?.setValue}
+                        revealHint={context?.reveal ? revealHint() : undefined}
                         position={pointUnder(input, hovered.start)}
                         onPointerEnter={field.keepHover}
                         onPointerLeave={field.closeHover}

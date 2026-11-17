@@ -13,6 +13,7 @@ export function VariableDetails({
     entry,
     environmentName,
     onSave,
+    revealHint,
     position,
     onPointerEnter,
     onPointerLeave,
@@ -63,6 +64,8 @@ export function VariableDetails({
                         <ScopeBadge scope={entry.scope} />
                         <span className="truncate">{details.where}</span>
                     </div>
+
+                    {revealHint && <p className="mt-2 mb-0 text-xs text-ink-3">{revealHint}</p>}
                 </>
             ) : (
                 <>
@@ -71,6 +74,8 @@ export function VariableDetails({
                         Not defined. Add it to the active environment or to the collection’s
                         variables.
                     </p>
+
+                    {revealHint && <p className="mt-2 mb-0 text-xs text-ink-3">{revealHint}</p>}
                 </>
             )}
         </div>

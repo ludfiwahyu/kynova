@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import type { VariableContextValue } from '@/components'
-import { saveEnvironment, saveItem, useCanEdit, useWorkspace } from '@/stores'
+import { revealVariable, saveEnvironment, saveItem, useCanEdit, useWorkspace } from '@/stores'
 import type { Variables } from '@/utils'
 import { rootCollection, scopeVariables, variableEntries } from '@/utils'
 import type { Item } from '#shared/types.ts'
@@ -32,6 +32,7 @@ export function useVariableContext(item: Item): VariableContextValue {
         () => ({
             entries: variableEntries(collection?.variables, environment?.variables),
             environmentName: environment?.name,
+            reveal: revealVariable,
             setValue: canEdit
                 ? (entry, value) => {
                       const change = (rows = environment?.variables ?? []) =>

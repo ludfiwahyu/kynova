@@ -1,9 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useActiveEnvironment } from '@/hooks'
-import { definedIn, withValue } from '@/pages/environments/logic/variables'
+import { REVEAL_RETRY_MS } from '@/pages/environments/logic/config'
+import { definedIn, focusVariable, withValue } from '@/pages/environments/logic/variables'
 import type { VariablesPanelProps } from '@/pages/environments/types'
-import { saveEnvironment, saveItem, useCanEdit, useWorkspace } from '@/stores'
+import {
+    saveEnvironment,
+    saveItem,
+    useCanEdit,
+    useUi,
+    useWorkspace,
+    variableRevealed,
+} from '@/stores'
 import { rootCollection, scopeVariables, usedVariables } from '@/utils'
 import type { KeyValue } from '#shared/types.ts'
 
@@ -14,15 +22,34 @@ export function useVariablesPanel({ item }: VariablesPanelProps) {
     )
     const canEdit = useCanEdit()
     const [showAll, setShowAll] = useState(true)
+    const revealed = useUi((state) => state.revealedVariable)
+    const ref = useRef<HTMLDivElement>(null)
 
     const variables = scopeVariables(collection?.variables, environment?.variables)
-    const names = item?.kind === 'http' ? usedVariables(JSON.stringify(item.request)) : []
+    const written = item?.kind === 'http' ? item.request : item
+    const names = written ? usedVariables(JSON.stringify(written)) : []
 
     const used = names.map((name) => ({
         name,
         value: variables[name] ?? '',
         scope: definedIn(name, environment?.variables, collection?.variables),
     }))
+
+    // A variable clicked in a field with ⌘ or Ctrl: its value takes the focus.
+    useEffect(() => {
+        if (!revealed || !ref.current) {
+            return
+        }
+
+        const panel = ref.current
+
+        // The panel may still be sliding in, and cannot take the focus until it has.
+        if (!focusVariable(panel, revealed.name)) {
+            setTimeout(() => focusVariable(panel, revealed.name), REVEAL_RETRY_MS)
+        }
+
+        variableRevealed()
+    }, [revealed])
 
     function changeEnvironment(rows: KeyValue[]) {
         if (environment) {
@@ -59,7 +86,9 @@ export function useVariablesPanel({ item }: VariablesPanelProps) {
         collection,
         variables,
         used,
+        ref,
         isRequest: item?.kind === 'http',
+        showUsed: item?.kind === 'http' || used.length > 0,
         showAll,
         toggleAll: () => setShowAll(!showAll),
         setValue,

@@ -1,9 +1,16 @@
 import type { CSSProperties, DragEvent } from 'react'
 
 import { confirm } from '@/components'
-import { isContainer, isRequest, KIND_LABEL, plural } from '@/pages/collections/logic/config'
+import {
+    isContainer,
+    isRequest,
+    KIND_LABEL,
+    NO_ADDRESS,
+    plural,
+} from '@/pages/collections/logic/config'
+import type { LabelPart } from '@/pages/collections/types'
 import { deleteItem, editNameSoon, expand, openTab } from '@/stores'
-import type { DropZone, ItemsById } from '@/utils'
+import type { DropZone, ItemsById, Variables } from '@/utils'
 import type { Item } from '#shared/types.ts'
 
 /** The items whose name or URL matches, and every container above them. */
@@ -125,4 +132,70 @@ export function zoneAt(event: DragEvent<HTMLElement>, item: Item): DropZone {
 
 export function depthStyle(depth: number): CSSProperties {
     return { '--depth': depth } as CSSProperties
+}
+
+/** What the hover label of an item says: its name, and for a request its method and address. */
+export function itemLabel(
+    item: Item,
+    variables: Variables = {},
+): {
+    title: string
+    method?: string
+    detail?: LabelPart[]
+    hint?: string
+} {
+    if (item.kind === 'http') {
+        return {
+            title: item.name,
+            method: item.request.method,
+            detail: addressParts(item.request.url, variables),
+        }
+    }
+
+    if (item.kind === 'websocket') {
+        return {
+            title: item.name,
+            method: 'WS',
+            detail: addressParts(item.url, variables),
+        }
+    }
+
+    return {
+        title: item.name,
+        hint: item.kind === 'collection' ? 'Collection' : 'Folder',
+    }
+}
+
+/**
+ * The address cut into parts: each `{{name}}` with a value becomes the value; one with no
+ * value stays as written and is marked missing. Dynamic ones (`{{$guid}}`) stay as written.
+ */
+function addressParts(address: string, variables: Variables): LabelPart[] {
+    if (address === '') {
+        return [{ text: NO_ADDRESS }]
+    }
+
+    const parts: LabelPart[] = []
+    let end = 0
+
+    for (const match of address.matchAll(/\{\{\s*([^{}]+?)\s*\}\}/g)) {
+        const name = match[1]
+        const value = variables[name]
+        const isDynamic = name.startsWith('$')
+
+        parts.push({ text: address.slice(end, match.index) })
+        parts.push(
+            value
+                ? { text: value }
+                : {
+                      text: match[0],
+                      isMissing: !isDynamic,
+                  },
+        )
+        end = match.index + match[0].length
+    }
+
+    parts.push({ text: address.slice(end) })
+
+    return parts.filter((part) => part.text !== '')
 }

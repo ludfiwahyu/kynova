@@ -9,10 +9,15 @@ export function VariablesPanel(props: VariablesPanelProps) {
     const panel = useVariablesPanel(props)
 
     return (
-        <div className="panel-scroll variables-panel">
-            {panel.isRequest && (
+        <div
+            ref={panel.ref}
+            className="panel-scroll variables-panel"
+        >
+            {panel.showUsed && (
                 <section className="variables-section">
-                    <h3 className="variables-heading">Variables in request</h3>
+                    <h3 className="variables-heading">
+                        {panel.isRequest ? 'Variables in request' : 'Variables used here'}
+                    </h3>
 
                     {panel.used.length === 0 && (
                         <p className="muted">

@@ -8,6 +8,7 @@ import {
     TOKEN,
 } from '@/components/ui/VariableInput/logic/config'
 import type { TextPart } from '@/components/ui/VariableInput/types'
+import { detectPlatform } from '@/settings'
 import { DYNAMIC_VARIABLE_HINTS, type VariableEntry, type Variables } from '@/utils'
 
 export function tokenKind(token: string, variables: Variables): 'variable' | 'unknown' | 'path' {
@@ -154,4 +155,11 @@ export function scopeLabel(entry: VariableEntry, environmentName: string | undef
     }
 
     return entry.scope ? SCOPE_NAME[entry.scope] : 'Variable'
+}
+
+/** What ⌘ or Ctrl and a click on a variable does, with the key this computer has. */
+export function revealHint(): string {
+    const key = detectPlatform() === 'mac' ? '⌘' : 'Ctrl'
+
+    return `${key}-click to edit in the Variables panel`
 }
