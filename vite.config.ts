@@ -5,6 +5,8 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type ProxyOptions } from 'vite'
 
+import { DEFAULT_PORT, devApiPort } from './shared/ports.ts'
+
 const { version } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
 
 /**
@@ -46,7 +48,9 @@ function appPlatform(mode: string, fromEnv: string | undefined) {
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '')
-    const server = toServer(env.VITE_API_BASE_URL || `http://127.0.0.1:${env.PORT || 8787}`)
+    // The page opens on PORT; `npm run dev:server` listens one port up.
+    const port = Number(env.PORT || DEFAULT_PORT)
+    const server = toServer(env.VITE_API_BASE_URL || `http://127.0.0.1:${devApiPort(port)}`)
 
     return {
         plugins: [react(), tailwindcss()],
@@ -72,6 +76,8 @@ export default defineConfig(({ mode }) => {
             chunkSizeWarningLimit: 600,
         },
         server: {
+            port,
+            strictPort: true,
             proxy: {
                 '/api': server,
                 '/ws': server,

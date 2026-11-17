@@ -1,6 +1,7 @@
 import { isIP } from 'node:net'
 import path from 'node:path'
 
+import { DEFAULT_PORT, devApiPort } from '#shared/ports.ts'
 import { MB } from '#shared/units.ts'
 
 const host = process.env.HOST ?? '127.0.0.1'
@@ -27,9 +28,14 @@ function parseAllowedHosts(): string[] | null {
 
 const dataDir = path.resolve(process.env.DATA_DIR ?? 'data')
 
+const port = Number(process.env.PORT ?? DEFAULT_PORT)
+
+/** `npm run dev:server` passes `--dev`: Vite serves the page on PORT, so the API moves up one. */
+const isDevServer = process.argv.includes('--dev')
+
 export const config = {
     host,
-    port: Number(process.env.PORT ?? 8787),
+    port: isDevServer ? devApiPort(port) : port,
     dataDir,
     /** A postgres:// URL to use PostgreSQL; `null` uses the built-in SQLite database file. */
     databaseUrl: process.env.DATABASE_URL || null,

@@ -25,8 +25,7 @@
   <a href="#get-started">Get started</a> ·
   <a href="#install-and-build-per-device">Install per device</a> ·
   <a href="#configuration">Configuration</a> ·
-  <a href="#license">License</a> ·
-  <a href="#disclaimer">Disclaimer</a>
+  <a href="#license-and-credits">License</a>
 </p>
 
 <br>
@@ -53,10 +52,10 @@ In the browser next to a small Node server, or as a desktop app for macOS and Wi
 </table>
 
 > [!IMPORTANT]
-> **Kynova is built entirely by AI.** Its code, tests and documentation were written by an AI model, directed and reviewed by a person. Read the [Disclaimer](#disclaimer) before you use it.
+> **Kynova is built entirely by AI.** Its code, tests and documentation were written by an AI model, directed and reviewed by a person.
 
 > [!NOTE]
-> **Still in development.** Features, settings and the database layout can change between versions without notice. Kynova is released under the **MIT License**: you are **free to clone, fork, change and share it**. See [License](#license).
+> **Still in development.** Features, settings and the database layout can change between versions without notice. Kynova is released under the **MIT License**: you are **free to clone, fork, change and share it**. See [License and credits](#license-and-credits).
 
 ---
 
@@ -66,18 +65,20 @@ In the browser next to a small Node server, or as a desktop app for macOS and Wi
 - **HTTP:** standard and custom methods, query params synced with the URL, path variables, headers, and raw (JSON, text, XML) or URL-encoded bodies. Send with the button or ⌘/Ctrl + Enter.
 - **WebSocket:** connect, send, and read a log of every message.
 - **Authorization:** API Key, Basic, Bearer, Digest, Hawk, JWT Bearer, OAuth 1.0, OAuth 2.0 (all five grants, PKCE, auto-refresh), Akamai EdgeGrid, ASAP, AWS Signature and NTLM.
-- **Responses:** status, time and size; highlighted JSON; headers; images; a progress bar while large responses arrive.
+- **Responses:** status with its standard name (`400 Bad Request`), time and size; the body in a read-only code editor coloured by its content type (JSON, HTML, XML, JavaScript, CSS, YAML or text), with folding, indent guides, find and minimap; JSON, HTML and XML laid out automatically, with Show raw to see what arrived; headers; images; a progress bar while large responses arrive.
 
 **Organising**
-- **Collections, folders and requests:** drag to reorder or move, select several at once, duplicate, archive and restore.
-- **Environments and variables:** `{{name}}` anywhere, with suggestions as you type `{{` and details on hover; dynamic variables such as `{{$guid}}`.
+- **Collections, folders and requests:** drag to reorder or move, select several at once, duplicate, archive and restore; colour tags for collections and environments.
+- **Environments and variables:** `{{name}}` anywhere, with suggestions as you type `{{` and details on hover; dynamic variables such as `{{$guid}}`; a Variables side panel with the open request's variables and the active environment.
 - **Drafts and Save:** edits stay in your draft until ⌘/Ctrl + S; the last 10 saved versions per request can be opened and restored.
-- **Import and export:** Collection v2.1 JSON, round-tripped with key order kept.
-- **Code snippets:** cURL, JavaScript `fetch` and Python `requests`.
+- **Import and export:** Collection v2.1 JSON, round-tripped with key order kept, and environment files; import several files at once, or drop them on the sidebar.
+- **Code snippets:** cURL, HTTP, C (libcurl), C# (HttpClient, RestSharp), Dart (dio, http), Go, Java (OkHttp, Unirest), JavaScript (fetch, XHR), Node.js (Axios), PHP, Python (Requests) and Ruby, coloured in the editor.
 - **History:** requests you sent, grouped by day, kept in your browser.
+- **Tabs:** a preview tab for a single click, its own tab for anything opened on purpose; drag tabs to reorder, or drag sidebar rows onto the tab strip; middle click opens a row in the background.
 
 **Editing**
-- **Code editor in the VS Code style:** auto-closing brackets, multi-cursor, find and replace, folding, minimap, bracket colours and indent guides.
+- **Code editor in the VS Code style:** auto-closing brackets, multi-cursor, find and replace, folding, minimap, bracket colours and indent guides, ⌘/ or Ctrl + / to switch lines off with `//` (kept in the body, left out when sent), and word wrap with ⌥Z or Alt + Z.
+- **Key/Value tables:** Table or Bulk Edit (`key:value` lines in the code editor, coloured), with an add button.
 - **JSON style:** read and type JSON with double, single or no quotes; it is always stored and sent as plain JSON.
 - **Console and Issues:** a log of every send, and a list of problems such as invalid JSON or variables with no value.
 
@@ -86,7 +87,7 @@ In the browser next to a small Node server, or as a desktop app for macOS and Wi
 - Live sync, presence (who is online, and which request they have open), and comments on requests.
 
 **Look and feel**
-- Light, dark and eight more themes, or follow the system; shape settings (corners, density, icon weight); interface and code fonts; movable panels; keyboard shortcuts for Mac and Windows.
+- Light, dark and eight more themes, or follow the system; shape settings (corners, density, icon weight); interface and code fonts; movable panels; keyboard shortcuts for Mac and Windows; zoom with ⌘/Ctrl + = in the desktop app.
 
 ---
 
@@ -117,7 +118,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173. The backend runs on port 8787 with the local database. Sign up, and start sending requests.
+Open http://localhost:8787 (the `PORT` in .env.local). The backend runs one port up, on 8788, with the local database. Sign up, and start sending requests.
 
 ---
 
@@ -159,7 +160,7 @@ npm install
 *Local database (ready to use):*
 
 ```sh
-npm run dev:server           # backend only, on http://127.0.0.1:8787, data in ./data
+npm run dev:server           # backend only, on http://127.0.0.1:8788 (PORT + 1), data in ./data
 ```
 
 *External database:* set `DATABASE_URL` before starting. Tables are created on first start.
@@ -181,7 +182,7 @@ You can also leave the backend on the local database and let each person pick th
 
 ```sh
 # Development: backend and frontend together, with live reload
-npm run dev                  # open http://localhost:5173
+npm run dev                  # open http://localhost:8787 (PORT)
 
 # Production: build once, then the backend serves the frontend
 npm run build                # writes dist/
@@ -217,7 +218,7 @@ npm install
 *Local database (ready to use):*
 
 ```powershell
-npm run dev:server           # http://127.0.0.1:8787, data in .\data
+npm run dev:server           # http://127.0.0.1:8788 (PORT + 1), data in .\data
 ```
 
 *External database:* in PowerShell, set the variable first.
@@ -233,7 +234,7 @@ In Command Prompt use `set DATABASE_URL=postgresql://...` instead.
 
 ```powershell
 # Development
-npm run dev                  # open http://localhost:5173
+npm run dev                  # open http://localhost:8787 (PORT)
 
 # Production
 npm run build
@@ -314,7 +315,7 @@ All backend settings are environment variables.
 | Variable | Default | Meaning |
 |---|---|---|
 | `HOST` | `127.0.0.1` | Address to listen on. |
-| `PORT` | `8787` | Port to listen on. |
+| `PORT` | `8787` | Port to listen on. With `npm run dev` the page (Vite) takes it and the backend the port after it. |
 | `DATA_DIR` | `./data` | Where the local database and its backups are kept. |
 | `DATABASE_URL` | not set | A `postgres://` or `mysql://` URL to use instead of the local database. |
 | `ALLOWED_HOSTS` | loopback names | Comma-separated host names the server answers to. Set it whenever `HOST` is not loopback. |
@@ -358,7 +359,7 @@ electron/    Desktop app shell
 scripts/     Desktop build and run helpers
 ```
 
-React 19, TypeScript, Vite, Tailwind 4, CodeMirror 6, zustand and Motion on the frontend; plain `node:http`, `node:sqlite`, `ws`, `pg` and `mysql2` on the backend; Electron for the desktop app.
+React 19, TypeScript, Vite, Tailwind 4, CodeMirror 6 (with its legacy modes for snippet and response colours), zustand and Motion on the frontend; plain `node:http`, `node:sqlite`, `ws`, `pg` and `mysql2` on the backend; Electron for the desktop app.
 
 **Development commands:** `npm test` (unit tests), `npm run typecheck`, `npm run format`, `npm run setup:lint` then `npm run lint`, and `npm run check` for all of them. Code rules: [CODE_STYLE.md](CODE_STYLE.md). Design: [DESIGN.md](DESIGN.md).
 
@@ -371,39 +372,40 @@ Kynova is **still in development** (version 0.1.0). It is not a finished product
 - **Expect changes:** features, screens, settings, environment variables and the database layout can change or be removed in any version. Migrations run on start, but back up your data (`npm run db:backup`) before you update.
 - **No stable release yet:** there is no release schedule, no long-term support, and no promise of backward compatibility.
 - **Tested:** unit tests and browser runs on macOS; SQLite, PostgreSQL 18 and MySQL 8.4; the packaged Mac app.
-- **Not tested:** the Windows build running on Windows, the Windows installer, a real Supabase project, Linux.
+- **Not tested:** the Windows build running on Windows, the Windows installer, a real Supabase project, Linux; and, in a browser, the newest work: multi-file import and drop, the tab rules, Bulk Edit in the code editor, ⌘/ in every editor, and the response editor with its formatting and folding.
 - **Known limitations:** environments are replaced whole, so two people changing different variables of one environment at once can lose one change; WebSocket requests connect from the browser, so they cannot set custom headers; invite links cannot be revoked before they expire.
 - **Not built:** pre-request and test scripts, a collection runner, mock servers, GraphQL, gRPC, MQTT and Socket.IO.
 
 ---
 
-## License
+## License and credits
 
-Kynova is released under the [MIT License](LICENSE).
+Kynova is released under the [MIT License](LICENSE). Copyright (c) 2026 [ludfiwahyu](https://github.com/ludfiwahyu) and the [Kynova contributors](https://github.com/ludfiwahyu/kynova/graphs/contributors). Source: [github.com/ludfiwahyu/kynova](https://github.com/ludfiwahyu/kynova).
 
 You are free to:
 
-- clone the repository and run Kynova for yourself or your team;
-- fork it, change it, and build your own version from it;
-- share or sell what you build, privately or commercially.
+- clone the repository and run Kynova for yourself or your team.
 
 The one condition: keep the copyright notice and the license text in every copy or substantial part of Kynova.
 
-The software comes "as is", without warranty and without support (see [Disclaimer](#disclaimer)).
+The software comes "as is", without warranty and without support.
+
+Bundled fonts, icons and libraries keep their own open licenses:
+
+| Part | Used for | License |
+|---|---|---|
+| [Inter](https://rsms.me/inter/) | Interface font (optional) | SIL Open Font License 1.1 |
+| [JetBrains Mono](https://www.jetbrains.com/lp/mono/) | Code font (optional) | SIL Open Font License 1.1 |
+| [Lucide](https://lucide.dev) | Icons | ISC |
+| [CodeMirror](https://codemirror.net) | Code editor | MIT |
+| [React](https://react.dev), [Motion](https://motion.dev), [Zustand](https://github.com/pmndrs/zustand) | Interface, animation, state | MIT |
+
+The full list of dependencies and their licenses is in `package.json` and `node_modules/*/LICENSE`.
+
+The Kynova name and logo (`public/favicon.svg`) belong to the project. Forks are welcome to use them to say where they come from, but a modified version should use its own name and logo so people can tell them apart.
+
+Kynova was written with [Claude](https://claude.com/claude-code) (Anthropic); commits made with it carry a `Co-Authored-By: Claude` line.
 
 ---
 
-## Disclaimer
-
-> [!WARNING]
-> **Use at your own risk.** Kynova is provided "as is", without any warranty. The authors are not liable for any loss or damage from using it, including lost or leaked data, credentials, tokens, or harm to systems you send requests to.
-
-- **Built by AI.** All code was written by an AI model. It has been tested, but it can still contain bugs and security flaws. Review it before you rely on it.
-- **You are responsible** for the requests you send, the systems you send them to, the data you store, and how you expose the server.
-- **Secrets.** Requests, environments and tokens are stored in the database you choose, and history is kept in your browser. Protect both.
-- **Unsigned apps.** The desktop builds are not code-signed.
-- **In development.** Updates can break things. Keep backups.
-
----
-
-<p align="center"><sub>Kynova · built entirely by AI · in development · MIT License · use at your own risk</sub></p>
+<p align="center"><sub>Kynova · built entirely by AI · in development · MIT License</sub></p>

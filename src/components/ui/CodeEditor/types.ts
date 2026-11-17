@@ -40,6 +40,11 @@ export type CodeLanguage =
     | 'dart'
     | 'php'
     | 'http'
+    // Response body languages, coloured only
+    | 'html'
+    | 'xml'
+    | 'css'
+    | 'yaml'
 
 export type EditingPreferences = Pick<
     Preferences,

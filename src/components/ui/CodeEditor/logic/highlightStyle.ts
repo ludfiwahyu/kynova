@@ -68,6 +68,18 @@ export const highlight = HighlightStyle.define([
         fontStyle: 'italic',
     },
     {
+        tag: tags.tagName,
+        color: 'var(--syn-keyword)',
+    },
+    {
+        tag: tags.attributeName,
+        color: 'var(--syn-key)',
+    },
+    {
+        tag: [tags.meta, tags.processingInstruction, tags.documentMeta],
+        color: 'var(--syn-comment)',
+    },
+    {
         tag: tags.invalid,
         color: 'var(--danger)',
     },

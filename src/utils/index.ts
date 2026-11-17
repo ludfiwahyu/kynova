@@ -20,7 +20,11 @@ export * from './common/tone'
 export * from './json/highlightJson'
 export * from './json/jsonStyle'
 
+// markup
+export * from './markup/formatMarkup'
+
 // mappers
+export * from './mappers/contentTypes'
 export * from './mappers/environmentFormat'
 export * from './mappers/exportFormat'
 

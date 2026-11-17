@@ -12,7 +12,6 @@ import type {
     PhaseTab,
     ResponseMeta,
     Section,
-    TokenView,
 } from '@/pages/request/types'
 import type { OAuthToken } from '@/stores'
 import {
@@ -21,8 +20,8 @@ import {
     formatDuration,
     type ItemsById,
     statusTone,
-    tokenKind,
 } from '@/utils'
+import { STATUS_TEXT } from '#shared/http.ts'
 import type { Item } from '#shared/types.ts'
 import type { HttpItem, HttpMethod, Scripts, SendResponse } from '#shared/types.ts'
 
@@ -59,18 +58,11 @@ export function toMethodOptions(methods: readonly HttpMethod[], value: HttpMetho
     }))
 }
 
-export function toTokenViews(tokens: Parameters<typeof tokenKind>[0][]): TokenView[] {
-    return tokens.map((token, index) => ({
-        id: index,
-        kind: tokenKind(token),
-        text: token.text,
-    }))
-}
-
 export function toResponseMeta(response: SendResponse): ResponseMeta {
     return {
         tone: statusTone(response.status),
-        status: `${response.status} ${response.statusText}`,
+        // The standard name first: HTTP/2 sends no reason phrase, and servers' own wording varies.
+        status: `${response.status} ${STATUS_TEXT[response.status] ?? response.statusText}`.trim(),
         time: formatDuration(response.timeMs),
         size: formatBytes(response.sizeBytes),
     }
