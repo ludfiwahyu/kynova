@@ -1,4 +1,4 @@
-import { ChevronsUpDown, CloudCheck, Save, Undo2 } from 'lucide-react'
+import { ChevronDown, CloudCheck, Save, Undo2 } from 'lucide-react'
 
 import { Button, Menu, MenuItem, MenuSeparator } from '@/components'
 import { HistoryMenu } from '@/pages/request/components/HistoryMenu'
@@ -40,7 +40,7 @@ export function SaveControls(props: SaveControlsProps) {
                 trigger={(triggerProps) => (
                     <Button
                         variant="icon"
-                        icon={<ChevronsUpDown size={HEADER_ICON_SIZE} />}
+                        icon={<ChevronDown size={HEADER_ICON_SIZE} />}
                         aria-label="Save options"
                         {...triggerProps}
                     />

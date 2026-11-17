@@ -162,23 +162,14 @@
     justify-content: flex-end;
 }
 
-/* Which database is in use, beside its settings button. */
+/* The database in use; the button opens its settings. */
 .db-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
-    max-width: 260px;
-    height: 26px;
-    padding: 0 var(--space-2);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    color: var(--rail-ink);
-    font-size: var(--text-xs);
+    max-width: 240px;
+    font-size: var(--text-sm);
+    font-weight: 500;
 }
 
 .db-status > svg {
-    flex: none;
     color: var(--ink-3);
 }
 
@@ -202,6 +193,7 @@
 }
 
 .topbar-button,
+.topbar-ghost,
 .workspace-switch {
     display: inline-flex;
     align-items: center;
@@ -218,22 +210,42 @@
     transition: background-color 120ms var(--ease-out);
 }
 
+.topbar-ghost,
 .workspace-switch {
     min-width: 0;
-    max-width: 260px;
     border-color: transparent;
 }
 
+.workspace-switch {
+    max-width: 260px;
+}
+
 .topbar-button:hover,
-.workspace-switch:hover {
+.topbar-ghost:hover,
+.workspace-switch:hover,
+.topbar-button[aria-expanded='true'],
+.workspace-switch[aria-expanded='true'] {
     background: var(--rail-hover);
+}
+
+.topbar-button:focus-visible,
+.topbar-ghost:focus-visible,
+.workspace-switch:focus-visible,
+.topbar-icon:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
+/* At the top bar's right, groups sit a little apart; icons within them close together. */
+.topbar-end {
+    gap: var(--space-1);
 }
 
 .topbar-icon {
     display: inline-grid;
     place-items: center;
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     border: 0;
     border-radius: var(--radius-sm);
     background: none;
@@ -241,7 +253,8 @@
     cursor: pointer;
 }
 
-.topbar-icon:hover {
+.topbar-icon:hover,
+.topbar-icon[aria-expanded='true'] {
     background: var(--rail-hover);
 }
 
@@ -259,10 +272,16 @@
     position: relative;
     display: flex;
     align-items: center;
+    min-width: 0;
 }
 
 .quick-search-input {
     width: 100%;
+    min-width: 0;
+}
+
+.quick-search-input input {
+    min-width: 0;
 }
 
 .quick-search-key {
@@ -871,13 +890,54 @@
     }
 
     .topbar {
-        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-columns: minmax(0, auto) minmax(40px, 1fr) auto;
+        gap: var(--space-2);
+    }
+
+    .workspace-switch {
+        max-width: 180px;
+    }
+
+    /* Under the floating sidebar or panel; a click on it puts them away. */
+    .shell-scrim {
+        grid-column: 1 / -1;
+        grid-row: body / status;
+        z-index: 15;
+        background: rgb(0 0 0 / 0.32);
+        animation: scrim-in 160ms var(--ease-out);
     }
 
     .topbar-label,
     .quick-search-key,
     .topbar-end .presence {
         display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .topbar {
+        padding: 0 var(--space-2);
+    }
+
+    .workspace-switch {
+        max-width: 120px;
+    }
+
+    /* Only the field's mark is left of the search box; it still opens the results. */
+    .quick-search-input input::placeholder {
+        color: transparent;
+    }
+}
+
+@keyframes scrim-in {
+    from {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .shell-scrim {
+        animation: none;
     }
 }
 
