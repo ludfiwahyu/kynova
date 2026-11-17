@@ -212,18 +212,18 @@ function fromApp(event: Electron.IpcMainEvent): BrowserWindow | null {
 }
 
 function listenToPage(): void {
-    ipcMain.on(DESKTOP_CHANNELS.openMenu, (event, menu: unknown, x: unknown, y: unknown) => {
+    ipcMain.on(DESKTOP_CHANNELS.openMenu, (event, x: unknown, y: unknown) => {
         const window = fromApp(event)
-        const item = Menu.getApplicationMenu()?.items.find((candidate) => candidate.label === menu)
+        const menu = Menu.getApplicationMenu()
 
-        if (!window || !item?.submenu || typeof x !== 'number' || typeof y !== 'number') {
+        if (!window || !menu || typeof x !== 'number' || typeof y !== 'number') {
             return
         }
 
         // Page pixels grow with the zoom; the menu is placed in window pixels.
         const zoom = event.sender.getZoomFactor()
 
-        item.submenu.popup({
+        menu.popup({
             window,
             x: Math.round(x * zoom),
             y: Math.round(y * zoom),

@@ -8,42 +8,44 @@ export function SettingsMenu() {
     const menu = useSettingsMenu()
 
     return (
-        <Menu
-            align="end"
-            label="Settings"
-            trigger={(props) => (
-                <Button
-                    variant="topbarIcon"
-                    icon={<SlidersVertical size={TOP_ICON_SIZE} />}
-                    aria-label="Settings"
-                    title="Settings"
-                    {...props}
-                />
-            )}
-        >
-            <MenuItem
-                icon={<SlidersHorizontal size={MENU_ICON_SIZE} />}
-                hint="⌘,"
-                onSelect={menu.openApp}
+        <span className="topbar-settings">
+            <Menu
+                align="end"
+                label="Settings"
+                trigger={(props) => (
+                    <Button
+                        variant="topbarIcon"
+                        icon={<SlidersVertical size={TOP_ICON_SIZE} />}
+                        aria-label="Settings"
+                        title="Settings"
+                        {...props}
+                    />
+                )}
             >
-                App settings
-            </MenuItem>
+                <MenuItem
+                    icon={<SlidersHorizontal size={MENU_ICON_SIZE} />}
+                    hint="⌘,"
+                    onSelect={menu.openApp}
+                >
+                    App settings
+                </MenuItem>
 
-            <MenuSeparator />
+                <MenuSeparator />
 
-            <MenuItem
-                icon={<Users size={MENU_ICON_SIZE} />}
-                onSelect={menu.openWorkspace}
-            >
-                Workspace settings
-            </MenuItem>
+                <MenuItem
+                    icon={<Users size={MENU_ICON_SIZE} />}
+                    onSelect={menu.openWorkspace}
+                >
+                    Workspace settings
+                </MenuItem>
 
-            <MenuItem
-                icon={<UserRound size={MENU_ICON_SIZE} />}
-                onSelect={menu.openAccount}
-            >
-                Account settings
-            </MenuItem>
-        </Menu>
+                <MenuItem
+                    icon={<UserRound size={MENU_ICON_SIZE} />}
+                    onSelect={menu.openAccount}
+                >
+                    Account settings
+                </MenuItem>
+            </Menu>
+        </span>
     )
 }

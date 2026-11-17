@@ -1,13 +1,11 @@
-import type { DesktopMenu } from '#shared/desktop.ts'
-
 export function useDesktopMenu() {
     const desktop = window.kynovaDesktop
 
-    /** Opens the app's own menu under its label, as a native title bar menu would. */
-    function open(menu: DesktopMenu, label: HTMLElement) {
-        const rect = label.getBoundingClientRect()
+    /** Opens File, Edit, View and Window under the button, as one native menu. */
+    function open(button: HTMLElement) {
+        const rect = button.getBoundingClientRect()
 
-        desktop?.openMenu(menu, rect.left, rect.bottom)
+        desktop?.openMenu(rect.left, rect.bottom)
     }
 
     return {

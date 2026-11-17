@@ -1,4 +1,4 @@
-/** The menus of the desktop app on Windows and Linux, in order. The page shows them in its top bar. */
+/** The menus of the desktop app on Windows and Linux, in order. The top bar opens them from one button. */
 export const DESKTOP_MENUS = ['File', 'Edit', 'View', 'Window'] as const
 
 export type DesktopMenu = (typeof DESKTOP_MENUS)[number]
@@ -16,8 +16,8 @@ export const TITLE_BAR_HEIGHT = 44
 /** What the desktop app's preload gives the page as `window.kynovaDesktop`. Absent in a browser. */
 export interface KynovaDesktop {
     platform: 'mac' | 'windows'
-    /** Opens one of the app's menus under the point, in page pixels. */
-    openMenu: (menu: DesktopMenu, x: number, y: number) => void
+    /** Opens the app's menus (File, Edit, View, Window) under the point, in page pixels. */
+    openMenu: (x: number, y: number) => void
     /** Colours the window buttons drawn over the top bar on Windows and Linux, as `#rrggbb`. */
     setTitleBarColors: (color: string, symbolColor: string) => void
     /** Called when the window enters or leaves full screen; returns a function that stops it. */

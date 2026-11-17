@@ -3,6 +3,7 @@ import { useId, useMemo, useRef, useState } from 'react'
 
 import { useShortcut } from '@/hooks'
 import { toSearchResults, toSearchRows } from '@/layouts/Workbench/logic/mappers'
+import { detectPlatform, keysFor, SHORTCUTS } from '@/settings'
 import { expand, openTab, useWorkspace } from '@/stores'
 import type { Item } from '#shared/types.ts'
 
@@ -81,6 +82,11 @@ export function useQuickSearch() {
         event.preventDefault()
     }
 
+    const platform = detectPlatform()
+    const keyHint = keysFor(SHORTCUTS['interface.search'], platform).join(
+        platform === 'mac' ? '' : '+',
+    )
+
     return {
         inputRef,
         listId,
@@ -89,6 +95,7 @@ export function useQuickSearch() {
         showResults,
         isEmpty,
         activeId,
+        keyHint,
         changeQuery,
         open,
         close,

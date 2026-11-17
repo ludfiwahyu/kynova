@@ -110,41 +110,31 @@
 
 /* Room for the traffic lights, which leave in full screen. */
 :root[data-desktop='mac']:not([data-full-screen]) .topbar {
-    padding-left: 84px;
+    --topbar-left: 84px;
 }
 
 /* Room for the window buttons drawn over the right end: three of 46px. */
 :root[data-desktop='windows'] .topbar {
-    padding-right: 146px;
-}
-
-.desktop-menu {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-
-.desktop-menu-item {
-    height: 28px;
-    padding: 0 var(--space-2);
-    border-radius: var(--radius-sm);
-    color: var(--rail-ink);
-    font-size: var(--text-sm);
-}
-
-.desktop-menu-item:hover,
-.desktop-menu-item:focus-visible {
-    background: var(--rail-hover);
+    --topbar-right: 146px;
 }
 
 /* ── Top bar ─────────────────────────────────────────────────────────── */
 
+/* The top bar folds by the room it really has, after the traffic lights or the window buttons,
+   so its rules are container queries on the bar, not media queries on the window. Labels go
+   first and icons stay: the account name, the wordmark, Invite's label, the database name and
+   search hint, the people online; then search becomes its icon and Invite and Settings move
+   into More; last the workspace name. */
 .topbar {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(200px, 480px) minmax(0, 1fr);
+    --topbar-left: var(--space-2);
+    --topbar-right: var(--space-2);
+    container: topbar / inline-size;
+    position: relative;
+    z-index: 30;
+    display: flex;
     align-items: center;
-    gap: var(--space-3);
-    padding: 0 var(--space-3);
+    gap: var(--space-2);
+    padding: 0 var(--topbar-right) 0 var(--topbar-left);
     border-bottom: 1px solid var(--line);
     background: var(--rail);
     color: var(--rail-ink);
@@ -154,19 +144,89 @@
 .topbar-end {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: 2px;
     min-width: 0;
 }
 
+.topbar-start {
+    flex: 0 1 auto;
+}
+
 .topbar-end {
-    justify-content: flex-end;
+    flex: none;
+    gap: var(--space-1);
+    margin-left: auto;
+}
+
+.topbar-brand {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0 6px 0 2px;
+    font-size: var(--text-md);
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+.topbar-brand > svg {
+    flex: none;
+}
+
+.topbar-divider {
+    flex: none;
+    width: 1px;
+    height: 16px;
+    margin: 0 var(--space-1);
+    background: var(--line);
+}
+
+/* One ghost control family: 28px, no border, the same hover and focus ring. */
+.topbar-ghost,
+.avatar-button {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 7px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--rail-ink);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 120ms var(--ease-out);
+}
+
+.topbar-ghost:hover,
+.avatar-button:hover,
+.topbar-ghost[aria-expanded='true'],
+.avatar-button[aria-expanded='true'] {
+    background: var(--rail-hover);
+}
+
+.topbar-ghost:focus-visible,
+.avatar-button:focus-visible,
+.topbar-icon:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
+.workspace-switch {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 220px;
+    font-weight: 600;
 }
 
 /* The database in use; the button opens its settings. */
 .db-status {
-    max-width: 240px;
-    font-size: var(--text-sm);
-    font-weight: 500;
+    max-width: 200px;
 }
 
 .db-status > svg {
@@ -181,68 +241,9 @@
     color: var(--put);
 }
 
-@media (max-width: 900px) {
-    .db-status-text {
-        display: none;
-    }
-}
-
-.topbar > svg,
-.topbar-start > svg {
-    flex: none;
-}
-
-.topbar-button,
-.topbar-ghost,
-.workspace-switch {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    height: 28px;
-    padding: 0 var(--space-2);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--rail-ink);
-    font-weight: 600;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: background-color 120ms var(--ease-out);
-}
-
-.topbar-ghost,
-.workspace-switch {
-    min-width: 0;
-    border-color: transparent;
-}
-
-.workspace-switch {
-    max-width: 260px;
-}
-
-.topbar-button:hover,
-.topbar-ghost:hover,
-.workspace-switch:hover,
-.topbar-button[aria-expanded='true'],
-.workspace-switch[aria-expanded='true'] {
-    background: var(--rail-hover);
-}
-
-.topbar-button:focus-visible,
-.topbar-ghost:focus-visible,
-.workspace-switch:focus-visible,
-.topbar-icon:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 1px;
-}
-
-/* At the top bar's right, groups sit a little apart; icons within them close together. */
-.topbar-end {
-    gap: var(--space-1);
-}
-
 .topbar-icon {
     display: inline-grid;
+    flex: none;
     place-items: center;
     width: 28px;
     height: 28px;
@@ -259,11 +260,147 @@
 }
 
 .avatar-button {
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: none;
-    cursor: pointer;
+    gap: var(--space-2);
+    padding: 0 var(--space-2) 0 2px;
+}
+
+.avatar-button-name {
+    max-width: 140px;
+}
+
+.topbar-settings,
+.topbar-more {
+    display: inline-flex;
+    flex: none;
+}
+
+.topbar-more {
+    display: none;
+}
+
+@container topbar (max-width: 1100px) {
+    .avatar-button-name {
+        display: none;
+    }
+
+    .avatar-button {
+        padding: 0 2px;
+    }
+}
+
+@container topbar (max-width: 980px) {
+    .topbar-wordmark {
+        display: none;
+    }
+
+    .topbar-brand {
+        padding: 0 2px;
+    }
+}
+
+@container topbar (max-width: 860px) {
+    .topbar-invite .topbar-label {
+        display: none;
+    }
+
+    .topbar-invite {
+        padding: 0;
+    }
+}
+
+@container topbar (max-width: 760px) {
+    .db-status-text,
+    .quick-search-key {
+        display: none;
+    }
+
+    .db-status {
+        padding: 0;
+    }
+
+    .workspace-switch {
+        max-width: 150px;
+    }
+}
+
+@container topbar (max-width: 640px) {
+    .topbar-end .presence {
+        display: none;
+    }
+
+    .workspace-switch {
+        max-width: 120px;
+    }
+
+    .quick-search {
+        min-width: 110px;
+    }
+}
+
+/* Search folds to its icon and opens across the bar while it has the focus. */
+@container topbar (max-width: 540px) {
+    .topbar-invite,
+    .topbar-settings {
+        display: none;
+    }
+
+    .topbar-more {
+        display: inline-flex;
+    }
+
+    .quick-search {
+        flex: none;
+        width: 30px;
+        min-width: 0;
+        margin-inline: auto 0;
+    }
+
+    .quick-search-input {
+        position: relative;
+        justify-content: center;
+        padding: 0;
+        border-color: transparent;
+        background: transparent;
+    }
+
+    .quick-search-input .input-group-field {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .quick-search:focus-within {
+        position: absolute;
+        inset: 0 var(--topbar-right) 0 var(--topbar-left);
+        z-index: 1;
+        width: auto;
+        background: var(--rail);
+    }
+
+    .quick-search:focus-within .quick-search-input {
+        justify-content: flex-start;
+        padding: 0 6px 0 var(--space-2);
+        border-color: var(--accent);
+        background: var(--bg);
+    }
+
+    .quick-search:focus-within .input-group-field {
+        position: static;
+        opacity: 1;
+        cursor: text;
+    }
+}
+
+@container topbar (max-width: 380px) {
+    .workspace-switch-name,
+    .topbar-divider {
+        display: none;
+    }
+
+    .workspace-switch {
+        padding: 0;
+    }
 }
 
 /* ── Quick search ────────────────────────────────────────────────────── */
@@ -271,13 +408,17 @@
 .quick-search {
     position: relative;
     display: flex;
+    flex: 1 1 340px;
     align-items: center;
-    min-width: 0;
+    min-width: 150px;
+    max-width: 460px;
+    margin-inline: auto;
 }
 
 .quick-search-input {
     width: 100%;
     min-width: 0;
+    height: 28px;
 }
 
 .quick-search-input input {
@@ -889,15 +1030,6 @@
         display: none;
     }
 
-    .topbar {
-        grid-template-columns: minmax(0, auto) minmax(40px, 1fr) auto;
-        gap: var(--space-2);
-    }
-
-    .workspace-switch {
-        max-width: 180px;
-    }
-
     /* Under the floating sidebar or panel; a click on it puts them away. */
     .shell-scrim {
         grid-column: 1 / -1;
@@ -905,27 +1037,6 @@
         z-index: 15;
         background: rgb(0 0 0 / 0.32);
         animation: scrim-in 160ms var(--ease-out);
-    }
-
-    .topbar-label,
-    .quick-search-key,
-    .topbar-end .presence {
-        display: none;
-    }
-}
-
-@media (max-width: 640px) {
-    .topbar {
-        padding: 0 var(--space-2);
-    }
-
-    .workspace-switch {
-        max-width: 120px;
-    }
-
-    /* Only the field's mark is left of the search box; it still opens the results. */
-    .quick-search-input input::placeholder {
-        color: transparent;
     }
 }
 

@@ -19,13 +19,15 @@ export function AccountMenu() {
                 <Button
                     variant="plain"
                     className="avatar-button"
-                    aria-label="Account"
+                    aria-label={`Account: ${account.user!.name}`}
                     {...props}
                 >
                     <Avatar
                         name={account.user!.name}
                         color={account.user!.color}
                     />
+
+                    <span className="avatar-button-name truncate">{account.user!.name}</span>
                 </Button>
             )}
         >
