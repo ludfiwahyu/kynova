@@ -42,12 +42,6 @@ export const CONNECTION_LABEL: Record<Connection, string> = {
     offline: 'Offline. Reconnecting… Editing is paused so nothing is lost.',
 }
 
-export const ROLE_LABEL = {
-    owner: 'Owner',
-    editor: 'Editor',
-    viewer: 'Viewer: you can send requests and comment, not edit',
-}
-
 export const STATUS_ICON_SIZE = 14
 
 export const DISMISS_ICON_SIZE = 12

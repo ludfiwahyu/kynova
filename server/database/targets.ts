@@ -53,8 +53,15 @@ function writePrivate(file: string, content: string): void {
     chmodSync(file, 0o600)
 }
 
-/** Makes target ids unguessable, so an id is no use without having had the connection details. */
+/**
+ * Makes target ids unguessable, so an id is no use without having had the connection details.
+ * APP_SECRET from .env.local when set; otherwise a random one kept in the data folder.
+ */
 function secret(): string {
+    if (config.appSecret) {
+        return config.appSecret
+    }
+
     if (!existsSync(SECRET_FILE)) {
         writePrivate(SECRET_FILE, randomBytes(32).toString('hex'))
     }

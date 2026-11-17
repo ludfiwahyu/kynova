@@ -1,10 +1,13 @@
 import { StreamLanguage, type StreamParser } from '@codemirror/language'
 import { c, clike, csharp, dart, java } from '@codemirror/legacy-modes/mode/clike'
+import { css } from '@codemirror/legacy-modes/mode/css'
 import { go } from '@codemirror/legacy-modes/mode/go'
 import { http } from '@codemirror/legacy-modes/mode/http'
 import { python } from '@codemirror/legacy-modes/mode/python'
 import { ruby } from '@codemirror/legacy-modes/mode/ruby'
 import { shell } from '@codemirror/legacy-modes/mode/shell'
+import { html, xml } from '@codemirror/legacy-modes/mode/xml'
+import { yaml } from '@codemirror/legacy-modes/mode/yaml'
 
 import type { CodeLanguage } from '@/components/ui/CodeEditor/types'
 
@@ -26,10 +29,23 @@ const php = clike({
     },
 })
 
-/** The code snippet languages, coloured by small stream parsers (read-only, no editing rules). */
+/** Code snippet and response body languages, coloured by small stream parsers (read-only, no editing rules). */
 export type SnippetCodeLanguage = Extract<
     CodeLanguage,
-    'shell' | 'python' | 'ruby' | 'go' | 'c' | 'csharp' | 'java' | 'dart' | 'php' | 'http'
+    | 'shell'
+    | 'python'
+    | 'ruby'
+    | 'go'
+    | 'c'
+    | 'csharp'
+    | 'java'
+    | 'dart'
+    | 'php'
+    | 'http'
+    | 'html'
+    | 'xml'
+    | 'css'
+    | 'yaml'
 >
 
 const PARSERS: Record<SnippetCodeLanguage, StreamParser<unknown>> = {
@@ -43,6 +59,10 @@ const PARSERS: Record<SnippetCodeLanguage, StreamParser<unknown>> = {
     dart,
     php,
     http: http as StreamParser<unknown>,
+    html,
+    xml,
+    css,
+    yaml: yaml as StreamParser<unknown>,
 }
 
 const languages = new Map<SnippetCodeLanguage, StreamLanguage<unknown>>()
@@ -50,7 +70,7 @@ const languages = new Map<SnippetCodeLanguage, StreamLanguage<unknown>>()
 export const isSnippetLanguage = (language: CodeLanguage): language is SnippetCodeLanguage =>
     language in PARSERS
 
-/** Made once per language, the first time a snippet in it is shown. */
+/** Made once per language, the first time something in it is shown. */
 export function snippetLanguage(language: SnippetCodeLanguage): StreamLanguage<unknown> {
     let made = languages.get(language)
 

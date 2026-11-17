@@ -127,12 +127,6 @@ export interface SendingProgressProps {
     progress?: SendProgress
 }
 
-export interface TokenView {
-    id: number
-    kind: string
-    text: string
-}
-
 export interface ResponseMeta {
     tone: string
     status: string

@@ -2,7 +2,7 @@ import { selectParentSyntax, undoSelection } from '@codemirror/commands'
 import { foldGutter, foldKeymap, foldService, matchBrackets } from '@codemirror/language'
 import { openSearchPanel } from '@codemirror/search'
 import type { EditorState, Extension } from '@codemirror/state'
-import { EditorSelection, Prec } from '@codemirror/state'
+import { countColumn, EditorSelection, Prec } from '@codemirror/state'
 import type { EditorView } from '@codemirror/view'
 import {
     dropCursor,
@@ -84,6 +84,48 @@ export const bracketFolding = foldService.of(
         }
     },
 )
+
+function indentWidth(text: string, tabSize: number): number {
+    return countColumn(text, tabSize, text.length - text.trimStart().length)
+}
+
+/**
+ * Folding by indentation, as VS Code does for languages without a grammar (HTML, XML, YAML,
+ * snippets, text): a line folds over the deeper-indented lines after it, blank lines included.
+ */
+export const indentFolding = foldService.of((state: EditorState, lineStart: number) => {
+    const line = state.doc.lineAt(lineStart)
+
+    if (!line.text.trim()) {
+        return null
+    }
+
+    const width = indentWidth(line.text, state.tabSize)
+    let end = -1
+
+    for (let number = line.number + 1; number <= state.doc.lines; number++) {
+        const next = state.doc.line(number)
+
+        if (!next.text.trim()) {
+            continue
+        }
+
+        if (indentWidth(next.text, state.tabSize) <= width) {
+            break
+        }
+
+        end = next.to
+    }
+
+    if (end === -1) {
+        return null
+    }
+
+    return {
+        from: line.to,
+        to: end,
+    }
+})
 
 export const vscodeEditing: Extension = [
     highlightSpecialChars(),

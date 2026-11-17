@@ -1,4 +1,4 @@
-import { Button, CopyButton, EmptyState } from '@/components'
+import { Button, CodeEditor, CopyButton, EmptyState } from '@/components'
 import { JsonStyleMenu } from '@/pages/request/components/JsonStyleMenu'
 import { useResponseBody } from '@/pages/request/hooks/useResponseBody'
 import type { ResponseBodyProps } from '@/pages/request/types'
@@ -27,7 +27,7 @@ export function ResponseBody(props: ResponseBodyProps) {
             {body.hasContent && (
                 <>
                     <div className="response-tools">
-                        {body.isJson && (
+                        {body.canFormat && (
                             <Button
                                 variant="ghost"
                                 onClick={body.togglePretty}
@@ -41,18 +41,16 @@ export function ResponseBody(props: ResponseBodyProps) {
                         {body.isJson && <JsonStyleMenu />}
                     </div>
 
-                    <pre className="response-scroll code">
-                        {body.tokenViews
-                            ? body.tokenViews.map((token) => (
-                                  <span
-                                      key={token.id}
-                                      data-token={token.kind}
-                                  >
-                                      {token.text}
-                                  </span>
-                              ))
-                            : body.text}
-                    </pre>
+                    <div className="response-editor">
+                        <CodeEditor
+                            label="Response body"
+                            value={body.text}
+                            language={body.language}
+                            readOnly
+                            fill
+                            onChange={body.ignoreEdit}
+                        />
+                    </div>
                 </>
             )}
         </div>

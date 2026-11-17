@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 
+import type { CodeLanguage } from '@/components'
 import { contentType } from '@/pages/request/logic/helpers'
-import { toTokenViews } from '@/pages/request/logic/mappers'
 import type { ResponseBodyProps } from '@/pages/request/types'
 import { indentText, usePreferences } from '@/settings'
-import { formatBytes, formatJson, highlightStyled } from '@/utils'
+import { contentLanguage, formatBytes, formatJson, formatMarkup, isFormattable } from '@/utils'
 
 export function useResponseBody({ response }: ResponseBodyProps) {
     const [isPretty, setIsPretty] = useState(true)
@@ -12,19 +12,29 @@ export function useResponseBody({ response }: ResponseBodyProps) {
     const indent = usePreferences(indentText)
 
     const type = contentType(response)
-    const isJson = type.includes('json')
+    const shownAs = contentLanguage(type)
+    const isJson = shownAs === 'json'
+    const canFormat = isFormattable(shownAs)
 
-    // Formatted JSON is written in the person's JSON style; raw is exactly what arrived.
+    // Formatted JSON is written in the person's JSON style, HTML and XML one tag per line; raw is exactly what arrived.
     const text = useMemo(() => {
-        if (isJson && isPretty) {
+        if (!canFormat || !isPretty) {
+            return response.body
+        }
+
+        if (isJson) {
             return formatJson(response.body, style, indent) ?? response.body
         }
 
-        return response.body
-    }, [response.body, isJson, isPretty, style, indent])
+        return formatMarkup(response.body, indent, shownAs === 'html') ?? response.body
+    }, [response.body, canFormat, isJson, shownAs, isPretty, style, indent])
 
-    const tokens = useMemo(() => (isJson ? highlightStyled(text) : null), [isJson, text])
-    const tokenViews = tokens ? toTokenViews(tokens) : null
+    // Single quotes or none are not JSON, so the editor reads them with its loose reader.
+    let language: CodeLanguage = shownAs
+
+    if (isJson && isPretty && style !== 'double') {
+        language = 'jsonLoose'
+    }
 
     const isBinary = response.bodyIsBase64
     const isImage = isBinary && type.startsWith('image/')
@@ -36,21 +46,25 @@ export function useResponseBody({ response }: ResponseBodyProps) {
     const binaryText = `${formatBytes(response.sizeBytes)} of ${type || 'unknown type'}. It cannot be shown as text.`
     const toggleLabel = isPretty ? 'Show raw' : 'Show formatted'
 
+    function ignoreEdit() {}
+
     function togglePretty() {
         setIsPretty(!isPretty)
     }
 
     return {
         isJson,
+        canFormat,
         isImage,
         isOtherBinary,
         isBlank,
         hasContent,
         text,
-        tokenViews,
+        language,
         imageSrc,
         binaryText,
         toggleLabel,
         togglePretty,
+        ignoreEdit,
     }
 }

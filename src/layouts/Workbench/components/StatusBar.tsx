@@ -1,6 +1,7 @@
-import { PanelLeft, X } from 'lucide-react'
+import { PanelLeft, Star, X } from 'lucide-react'
 
 import { Button } from '@/components'
+import { REPO_URL } from '@/constants'
 import { useStatusBar } from '@/layouts/Workbench/hooks/useStatusBar'
 import { DISMISS_ICON_SIZE, STATUS_ICON_SIZE } from '@/layouts/Workbench/logic/config'
 
@@ -62,7 +63,16 @@ export function StatusBar() {
 
             <span className="grow" />
 
-            {bar.showRole && <span>{bar.roleLabel}</span>}
+            <a
+                className="statusbar-text statusbar-link"
+                href={REPO_URL}
+                target="_blank"
+                rel="noreferrer"
+                title="Open the Kynova repository on GitHub to star it or review the code"
+            >
+                <Star size={STATUS_ICON_SIZE} />
+                Star on GitHub
+            </a>
         </footer>
     )
 }

@@ -30,7 +30,7 @@ import {
     isSnippetLanguage,
     snippetLanguage,
 } from '@/components/ui/CodeEditor/logic/snippetLanguages'
-import { bracketFolding } from '@/components/ui/CodeEditor/logic/vscodeEditing'
+import { bracketFolding, indentFolding } from '@/components/ui/CodeEditor/logic/vscodeEditing'
 import type { CodeLanguage, EditingPreferences } from '@/components/ui/CodeEditor/types'
 import { highlightStyled, tokenKind, type Variables } from '@/utils'
 
@@ -326,7 +326,7 @@ export function languageExtension(language: CodeLanguage): Extension {
     }
 
     if (isSnippetLanguage(language)) {
-        return snippetLanguage(language)
+        return [snippetLanguage(language), indentFolding]
     }
 
     if (language === 'keyValue') {
@@ -336,6 +336,7 @@ export function languageExtension(language: CodeLanguage): Extension {
     return [
         bracketIndent,
         EditorState.languageData.of(() => [{ indentOnInput: /^\s*[}\])]$/ }]),
+        indentFolding,
         commentLines,
         toggleLines,
     ]

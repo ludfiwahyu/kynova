@@ -484,6 +484,11 @@
     color: var(--ink);
 }
 
+.statusbar-link {
+    color: var(--ink-3);
+    text-decoration: none;
+}
+
 .statusbar-count {
     min-width: 16px;
     padding: 0 4px;

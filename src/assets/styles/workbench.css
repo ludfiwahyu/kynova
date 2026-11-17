@@ -905,11 +905,17 @@
     overflow: auto;
 }
 
-pre.response-scroll {
-    font-size: var(--code-font-size, var(--text-sm));
-    line-height: 1.6;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
+/* A text response in the read-only code editor, coloured by its content type. */
+.response-editor {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    padding: var(--space-2) var(--space-3) var(--space-3);
+}
+
+.response-editor .code-area {
+    flex: 1;
 }
 
 [data-token='key'] {
