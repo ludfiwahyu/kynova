@@ -133,3 +133,7 @@ export interface IssueCounts {
 export interface WorkbenchProps {
     workspaceId: string
 }
+
+export interface TopBarMoreMenuProps {
+    onInvite: () => void
+}

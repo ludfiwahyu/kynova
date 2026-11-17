@@ -14,9 +14,9 @@ export function QuickSearch() {
                 aria-expanded={search.showResults}
                 aria-controls={search.listId}
                 aria-activedescendant={search.activeId}
-                placeholder="Search"
+                placeholder="Search requests and collections"
                 value={search.query}
-                trailing={<kbd className="quick-search-key">⌘K</kbd>}
+                trailing={<kbd className="quick-search-key">{search.keyHint}</kbd>}
                 onChange={search.changeQuery}
                 onFocus={search.open}
                 onBlur={search.close}

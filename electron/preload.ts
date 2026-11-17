@@ -5,7 +5,7 @@ import { DESKTOP_CHANNELS, type KynovaDesktop } from '#shared/desktop.ts'
 // The page gets these few calls and nothing else of Electron or Node.js.
 const desktop: KynovaDesktop = {
     platform: process.platform === 'darwin' ? 'mac' : 'windows',
-    openMenu: (menu, x, y) => ipcRenderer.send(DESKTOP_CHANNELS.openMenu, menu, x, y),
+    openMenu: (x, y) => ipcRenderer.send(DESKTOP_CHANNELS.openMenu, x, y),
     setTitleBarColors: (color, symbolColor) =>
         ipcRenderer.send(DESKTOP_CHANNELS.titleBarColors, color, symbolColor),
     onFullScreen: (listener) => {

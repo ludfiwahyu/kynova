@@ -1,8 +1,10 @@
+import { Menu as MenuIcon } from 'lucide-react'
+
 import { Button } from '@/components'
 import { useDesktopMenu } from '@/layouts/Workbench/hooks/useDesktopMenu'
-import { DESKTOP_MENUS } from '#shared/desktop.ts'
+import { TOP_ICON_SIZE } from '@/layouts/Workbench/logic/config'
 
-/** File, Edit, View and Window in the top bar of the desktop app on Windows and Linux, which has no title bar of its own. */
+/** File, Edit, View and Window behind one button in the desktop app on Windows and Linux, which has no title bar of its own. */
 export function DesktopMenu() {
     const menu = useDesktopMenu()
 
@@ -11,21 +13,13 @@ export function DesktopMenu() {
     }
 
     return (
-        <nav
-            className="desktop-menu"
+        <Button
+            variant="topbarIcon"
+            icon={<MenuIcon size={TOP_ICON_SIZE} />}
             aria-label="Application menu"
-        >
-            {DESKTOP_MENUS.map((label) => (
-                <Button
-                    key={label}
-                    variant="plain"
-                    className="desktop-menu-item"
-                    aria-haspopup="menu"
-                    onClick={(event) => menu.open(label, event.currentTarget)}
-                >
-                    {label}
-                </Button>
-            ))}
-        </nav>
+            aria-haspopup="menu"
+            title="File, Edit, View, Window"
+            onClick={(event) => menu.open(event.currentTarget)}
+        />
     )
 }

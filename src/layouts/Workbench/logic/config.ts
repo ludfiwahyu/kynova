@@ -58,6 +58,8 @@ export const INVITE_ICON_SIZE = 15
 
 export const LOGO_SIZE = 22
 
+export const APP_NAME = 'Kynova'
+
 export const MAX_SEARCH_RESULTS = 8
 
 export const RIGHT_PANELS: {

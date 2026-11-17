@@ -26,11 +26,11 @@ export function WorkspaceMenu() {
                 trigger={(props) => (
                     <Button
                         variant="plain"
-                        className="topbar-button workspace-switch"
+                        className="topbar-ghost workspace-switch"
                         iconEnd={<ChevronsUpDown size={MENU_ICON_SIZE} />}
                         {...props}
                     >
-                        <span className="truncate">{menu.active!.name}</span>
+                        <span className="workspace-switch-name truncate">{menu.active!.name}</span>
                     </Button>
                 )}
             >
