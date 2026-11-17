@@ -1,0 +1,62 @@
+# Pushing to main runs release-please. It reads the commit types (feat, fix, BREAKING:) since
+# the last release and keeps a "Release PR" open that raises the version in package.json and
+# writes CHANGELOG.md. Merging that PR creates the tag and the GitHub Release; the build jobs
+# below then add the Mac .dmg and the Windows portable .exe to that Release.
+#
+# The apps are not signed. Signing needs an Apple Developer ID and a Windows code-signing
+# certificate, given to electron-builder as secrets (see https://www.electron.build/code-signing).
+name: Release
+
+on:
+    push:
+        branches: [main]
+
+permissions:
+    contents: write
+    pull-requests: write
+
+jobs:
+    release-please:
+        runs-on: ubuntu-latest
+        outputs:
+            release_created: ${{ steps.release.outputs.release_created }}
+            tag_name: ${{ steps.release.outputs.tag_name }}
+        steps:
+            - uses: googleapis/release-please-action@v4
+              id: release
+              with:
+                  config-file: release-please-config.json
+                  manifest-file: .release-please-manifest.json
+
+    build:
+        needs: release-please
+        if: needs.release-please.outputs.release_created == 'true'
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - os: macos-latest
+                      script: desktop:mac
+                      files: release/*.dmg
+                    - os: windows-latest
+                      script: desktop:win
+                      files: release/*.exe
+        runs-on: ${{ matrix.os }}
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  ref: ${{ needs.release-please.outputs.tag_name }}
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 26
+                  cache: npm
+            - run: npm ci
+            - run: npm run ${{ matrix.script }}
+              env:
+                  CSC_IDENTITY_AUTO_DISCOVERY: false
+            - name: Add the app to the release (replaces a file of the same name)
+              shell: bash
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  TAG: ${{ needs.release-please.outputs.tag_name }}
+              run: gh release upload "$TAG" ${{ matrix.files }} --clobber

@@ -1,6 +1,6 @@
-# Builds the desktop app on real Macs and Windows PCs: the .dmg (Apple Silicon and Intel)
-# and the Windows installer, portable .exe and .zip. Run it from the Actions tab, or push
-# a tag such as v0.2.0. The files are under the run's Artifacts.
+# A test build on real Macs and Windows PCs: the .dmg (Apple Silicon and Intel in one) and
+# the Windows portable .exe. Run it from the Actions tab; the files are under the run's
+# Artifacts. Releases are built by release.yml.
 #
 # The apps are not signed. Signing needs an Apple Developer ID and a Windows code-signing
 # certificate, given to electron-builder as secrets (see https://www.electron.build/code-signing).
@@ -8,8 +8,6 @@ name: Desktop app
 
 on:
     workflow_dispatch:
-    push:
-        tags: ['v*']
 
 jobs:
     build:
@@ -39,4 +37,3 @@ jobs:
                   path: |
                       release/*.dmg
                       release/*.exe
-                      release/*.zip
