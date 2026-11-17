@@ -1,3 +1,5 @@
+import { TITLE_BAR_HEIGHT, WINDOW_BUTTONS_WIDTH } from '#shared/desktop.ts'
+
 let canvas: CanvasRenderingContext2D | null = null
 
 /** Any CSS colour as `#rrggbb`, which the desktop window accepts. */
@@ -55,4 +57,23 @@ export function startDesktopChrome(): void {
         attributes: true,
         attributeFilter: ['data-theme', 'style'],
     })
+
+    // The window buttons keep their size when the page zooms, so the top bar makes room for them,
+    // and they take the bar's height, in zoomed pixels.
+    let lastZoom = 0
+
+    const fit = () => {
+        const zoom = desktop.getZoomFactor()
+
+        if (zoom === lastZoom) {
+            return
+        }
+
+        lastZoom = zoom
+        root.style.setProperty('--window-buttons', `${WINDOW_BUTTONS_WIDTH / zoom}px`)
+        desktop.setTitleBarHeight(Math.round(TITLE_BAR_HEIGHT * zoom))
+    }
+
+    fit()
+    window.addEventListener('resize', fit)
 }

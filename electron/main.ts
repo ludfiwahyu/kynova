@@ -147,10 +147,14 @@ const SAFE_PAGE: Electron.WebPreferences = {
 
 /** The menus on Windows and Linux, which the page opens from its top bar. A Mac keeps Electron's menu bar at the top of the screen. */
 const MENU_ITEMS: Record<DesktopMenu, MenuItemConstructorOptions[]> = {
-    File: [{ role: 'close' }, { type: 'separator' }, {
- role: 'quit',
-label: 'Exit' 
-}],
+    File: [
+        { role: 'close' },
+        { type: 'separator' },
+        {
+            role: 'quit',
+            label: 'Exit',
+        },
+    ],
     Edit: [
         { role: 'undo' },
         { role: 'redo' },
@@ -247,8 +251,25 @@ function listenToPage(): void {
         window.setTitleBarOverlay({
             color,
             symbolColor,
-            height: TITLE_BAR_HEIGHT,
         })
+    })
+
+    // Page zoom resizes the top bar, not the window buttons the system draws over it.
+    ipcMain.on(DESKTOP_CHANNELS.titleBarHeight, (event, height: unknown) => {
+        const window = fromApp(event)
+
+        if (
+            IS_MAC ||
+            !window ||
+            typeof height !== 'number' ||
+            !Number.isFinite(height) ||
+            height < 16 ||
+            height > 400
+        ) {
+            return
+        }
+
+        window.setTitleBarOverlay({ height: Math.round(height) })
     })
 }
 
