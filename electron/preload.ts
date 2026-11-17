@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webFrame } from 'electron'
 
 import { DESKTOP_CHANNELS, type KynovaDesktop } from '#shared/desktop.ts'
 
@@ -8,6 +8,8 @@ const desktop: KynovaDesktop = {
     openMenu: (x, y) => ipcRenderer.send(DESKTOP_CHANNELS.openMenu, x, y),
     setTitleBarColors: (color, symbolColor) =>
         ipcRenderer.send(DESKTOP_CHANNELS.titleBarColors, color, symbolColor),
+    getZoomFactor: () => webFrame.getZoomFactor(),
+    setTitleBarHeight: (height) => ipcRenderer.send(DESKTOP_CHANNELS.titleBarHeight, height),
     onFullScreen: (listener) => {
         const handle = (_event: Electron.IpcRendererEvent, isFullScreen: boolean) =>
             listener(isFullScreen)

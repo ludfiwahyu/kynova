@@ -113,9 +113,9 @@
     --topbar-left: 84px;
 }
 
-/* Room for the window buttons drawn over the right end: three of 46px. */
+/* Room for the window buttons drawn over the right end: three of 46px, as the page's zoom shows them. */
 :root[data-desktop='windows'] .topbar {
-    --topbar-right: 146px;
+    --topbar-right: calc(var(--window-buttons, 138px) + var(--space-2));
 }
 
 /* ── Top bar ─────────────────────────────────────────────────────────── */
