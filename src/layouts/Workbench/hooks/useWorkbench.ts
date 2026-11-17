@@ -87,6 +87,12 @@ export function useWorkbench(workspaceId: string) {
         return mainRef.current
     }
 
+    // On a narrow screen the sidebar and panel float over the work; a click beside them puts them away.
+    function closeFloating() {
+        setLayout({ sidebarOpen: false })
+        closeRightPanel()
+    }
+
     return {
         mainRef,
         shellStyle,
@@ -98,5 +104,7 @@ export function useWorkbench(workspaceId: string) {
         consoleResizeClass: `console-resize console-resize-${consoleSide}`,
         resize,
         workArea,
+        showScrim: narrow && (layout.sidebarOpen || Boolean(rightPanel)),
+        closeFloating,
     }
 }

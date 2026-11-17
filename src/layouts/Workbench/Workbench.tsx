@@ -24,6 +24,14 @@ export function Workbench({ workspaceId }: WorkbenchProps) {
         >
             <TopBar />
 
+            {bench.showScrim && (
+                <div
+                    className="shell-scrim"
+                    aria-hidden="true"
+                    onClick={bench.closeFloating}
+                />
+            )}
+
             {bench.sidebarOpen && (
                 <>
                     <Sidebar />

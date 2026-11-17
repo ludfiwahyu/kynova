@@ -1,9 +1,9 @@
-import { HardDrive, Plug } from 'lucide-react'
+import { HardDrive } from 'lucide-react'
 
 import { Button, Dialog } from '@/components'
 import { DatabasePicker } from '@/pages/database/components/DatabasePicker'
 import { useDatabaseStatus } from '@/pages/database/hooks/useDatabaseStatus'
-import { SETTINGS_ICON_SIZE, STATUS_ICON_SIZE } from '@/pages/database/logic/config'
+import { STATUS_ICON_SIZE } from '@/pages/database/logic/config'
 
 export function DatabaseStatus() {
     const status = useDatabaseStatus()
@@ -14,22 +14,17 @@ export function DatabaseStatus() {
 
     return (
         <div className="db-status-group">
-            <span
-                className="db-status"
-                data-kind={status.current.kind}
-                title={status.title}
-            >
-                <HardDrive size={STATUS_ICON_SIZE} />
-                <span className="db-status-text truncate">{status.summary}</span>
-            </span>
-
             <Button
-                variant="topbarIcon"
-                icon={<Plug size={SETTINGS_ICON_SIZE} />}
-                aria-label="Database settings"
-                title="Database settings"
+                variant="plain"
+                className="topbar-ghost db-status"
+                data-kind={status.current.kind}
+                icon={<HardDrive size={STATUS_ICON_SIZE} />}
+                aria-label={`Database: ${status.summary}. Open database settings`}
+                title={`${status.title} · Database settings`}
                 onClick={status.open}
-            />
+            >
+                <span className="db-status-text truncate">{status.summary}</span>
+            </Button>
 
             {status.isOpen && (
                 <Dialog

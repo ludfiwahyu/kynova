@@ -1,4 +1,4 @@
-import { ChevronsUpDown, Plus } from 'lucide-react'
+import { ChevronDown, Plus } from 'lucide-react'
 
 import { Button, Menu, MenuItem, MenuSeparator } from '@/components'
 import { TabButton } from '@/layouts/Workbench/components/TabButton'
@@ -61,7 +61,7 @@ export function TabStrip() {
                     trigger={(props) => (
                         <Button
                             variant="icon"
-                            icon={<ChevronsUpDown size={STRIP_ICON_SIZE} />}
+                            icon={<ChevronDown size={STRIP_ICON_SIZE} />}
                             aria-label="All open tabs"
                             title="All open tabs"
                             {...props}

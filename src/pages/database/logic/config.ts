@@ -30,8 +30,6 @@ export const KIND_NAME = {
 
 export const STATUS_ICON_SIZE = 14
 
-export const SETTINGS_ICON_SIZE = 16
-
 export const CHOICE_ICON_SIZE = 18
 
 export const SMALL_ICON_SIZE = 13
