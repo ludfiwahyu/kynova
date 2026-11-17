@@ -1,10 +1,37 @@
 import { createServer } from 'node:net'
 import path from 'node:path'
 
-import { app, BrowserWindow, dialog, nativeTheme, shell, utilityProcess } from 'electron'
+import {
+    app,
+    BrowserWindow,
+    dialog,
+    ipcMain,
+    Menu,
+    type MenuItemConstructorOptions,
+    nativeTheme,
+    shell,
+    utilityProcess,
+} from 'electron'
+
+import {
+    DESKTOP_CHANNELS,
+    DESKTOP_MENUS,
+    type DesktopMenu,
+    TITLE_BAR_HEIGHT,
+} from '#shared/desktop.ts'
 
 const SERVER = path.join(__dirname, 'server', 'index.mjs')
 const WEB_APP = path.join(__dirname, '..', 'dist')
+const PRELOAD = path.join(__dirname, 'preload.cjs')
+/** Kynova's own icon, for the window and taskbar where the installer has not set one (and for the Dock while developing). */
+const ICON = path.join(app.getAppPath(), 'build', 'icon.png')
+const IS_MAC = process.platform === 'darwin'
+/** The traffic lights are about 14px tall; this centres them in the top bar. */
+const TRAFFIC_LIGHTS = {
+    x: 16,
+    y: (TITLE_BAR_HEIGHT - 14) / 2,
+}
+const HEX_COLOR = /^#[0-9a-f]{6}$/i
 /** The OAuth 2.0 sign-in window the web app opens (`window.open(..., 'kynova-oauth2')`). */
 const OAUTH_WINDOW = 'kynova-oauth2'
 
@@ -118,6 +145,113 @@ const SAFE_PAGE: Electron.WebPreferences = {
     nodeIntegration: false,
 }
 
+/** The menus on Windows and Linux, which the page opens from its top bar. A Mac keeps Electron's menu bar at the top of the screen. */
+const MENU_ITEMS: Record<DesktopMenu, MenuItemConstructorOptions[]> = {
+    File: [{ role: 'close' }, { type: 'separator' }, {
+ role: 'quit',
+label: 'Exit' 
+}],
+    Edit: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'delete' },
+        { type: 'separator' },
+        { role: 'selectAll' },
+    ],
+    View: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' },
+    ],
+    Window: [{ role: 'minimize' }, { role: 'close' }],
+}
+
+/**
+ * The window has no title bar of its own: the page's top bar takes its place. On a Mac the
+ * traffic lights sit in it; on Windows and Linux the window buttons are drawn over its right end.
+ */
+function titleBar(): Electron.BrowserWindowConstructorOptions {
+    if (IS_MAC) {
+        return {
+            titleBarStyle: 'hidden',
+            trafficLightPosition: TRAFFIC_LIGHTS,
+        }
+    }
+
+    const isDark = nativeTheme.shouldUseDarkColors
+
+    return {
+        titleBarStyle: 'hidden',
+        // The page sends its own colours once it has a theme.
+        titleBarOverlay: {
+            color: isDark ? '#1c1c1c' : '#f9f9f9',
+            symbolColor: isDark ? '#ffffff' : '#212121',
+            height: TITLE_BAR_HEIGHT,
+        },
+        icon: ICON,
+    }
+}
+
+/** Only the app's own page may open menus or colour the window. */
+function fromApp(event: Electron.IpcMainEvent): BrowserWindow | null {
+    if (!sameOrigin(event.senderFrame?.url ?? '')) {
+        return null
+    }
+
+    return BrowserWindow.fromWebContents(event.sender)
+}
+
+function listenToPage(): void {
+    ipcMain.on(DESKTOP_CHANNELS.openMenu, (event, menu: unknown, x: unknown, y: unknown) => {
+        const window = fromApp(event)
+        const item = Menu.getApplicationMenu()?.items.find((candidate) => candidate.label === menu)
+
+        if (!window || !item?.submenu || typeof x !== 'number' || typeof y !== 'number') {
+            return
+        }
+
+        // Page pixels grow with the zoom; the menu is placed in window pixels.
+        const zoom = event.sender.getZoomFactor()
+
+        item.submenu.popup({
+            window,
+            x: Math.round(x * zoom),
+            y: Math.round(y * zoom),
+        })
+    })
+
+    ipcMain.on(DESKTOP_CHANNELS.titleBarColors, (event, color: unknown, symbolColor: unknown) => {
+        const window = fromApp(event)
+
+        if (
+            IS_MAC ||
+            !window ||
+            typeof color !== 'string' ||
+            typeof symbolColor !== 'string' ||
+            !HEX_COLOR.test(color) ||
+            !HEX_COLOR.test(symbolColor)
+        ) {
+            return
+        }
+
+        window.setTitleBarOverlay({
+            color,
+            symbolColor,
+            height: TITLE_BAR_HEIGHT,
+        })
+    })
+}
+
 function openWindow(): BrowserWindow {
     const window = new BrowserWindow({
         width: 1440,
@@ -127,10 +261,25 @@ function openWindow(): BrowserWindow {
         title: 'Kynova',
         show: false,
         backgroundColor: nativeTheme.shouldUseDarkColors ? '#212121' : '#ffffff',
-        webPreferences: SAFE_PAGE,
+        ...titleBar(),
+        webPreferences: {
+            ...SAFE_PAGE,
+            preload: PRELOAD,
+        },
     })
 
     window.once('ready-to-show', () => window.show())
+
+    // The menus open from the page's top bar; their keys keep working while the bar is hidden.
+    if (!IS_MAC) {
+        window.setMenuBarVisibility(false)
+    }
+
+    // Without the title bar the traffic lights leave in full screen, and so does the room kept for them.
+    window.on('enter-full-screen', () => window.webContents.send(DESKTOP_CHANNELS.fullScreen, true))
+    window.on('leave-full-screen', () =>
+        window.webContents.send(DESKTOP_CHANNELS.fullScreen, false),
+    )
 
     // ⌘= or Ctrl+= zooms in, as in browsers. Electron's own menu only takes ⌘+ (Shift on most
     // keyboards); its ⌘- and ⌘0 already match. The step is the menu's.
@@ -195,6 +344,22 @@ if (!app.requestSingleInstanceLock()) {
 
     app.whenReady()
         .then(async () => {
+            if (IS_MAC && !app.isPackaged) {
+                app.dock?.setIcon(ICON)
+            }
+
+            if (!IS_MAC) {
+                Menu.setApplicationMenu(
+                    Menu.buildFromTemplate(
+                        DESKTOP_MENUS.map((label) => ({
+                            label,
+                            submenu: MENU_ITEMS[label],
+                        })),
+                    ),
+                )
+            }
+
+            listenToPage()
             await startServer()
             openWindow()
 

@@ -428,7 +428,7 @@ input[type='checkbox'] {
 }
 
 .code-area .cm-line {
-    padding: 0 var(--space-3) 0 var(--space-2);
+    padding: 0 var(--space-3) 0 var(--line-pad);
 }
 
 .code-area .cm-gutters {
@@ -485,6 +485,8 @@ input[type='checkbox'] {
 }
 
 .code-area .cm-content {
+    /* Where every line's text starts. Wrapped lines pad further (wrapIndent), so guides are placed from here, not from the text. */
+    --line-pad: var(--space-2);
     --guide-unit: calc(var(--indent-size, 2) * 1ch);
 }
 
@@ -497,7 +499,8 @@ input[type='checkbox'] {
     );
     background-size: calc(var(--guide-count) * var(--guide-unit)) 100%;
     background-repeat: no-repeat;
-    background-origin: content-box;
+    background-origin: padding-box;
+    background-position: var(--line-pad) 0;
 }
 
 .code-area .cm-guides.cm-guide-active {
@@ -515,8 +518,8 @@ input[type='checkbox'] {
         1px 100%,
         calc(var(--guide-count) * var(--guide-unit)) 100%;
     background-position:
-        calc(var(--guide-active) * var(--guide-unit)) 0,
-        0 0;
+        calc(var(--line-pad) + var(--guide-active) * var(--guide-unit)) 0,
+        var(--line-pad) 0;
 }
 
 /* Brackets by nesting level, as VS Code's bracket pair colours. */

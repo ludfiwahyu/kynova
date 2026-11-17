@@ -231,5 +231,8 @@ export function useCodeMirror({
         })
     }, [value])
 
-    return { hostRef }
+    return {
+        hostRef,
+        viewRef,
+    }
 }

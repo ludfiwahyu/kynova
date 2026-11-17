@@ -21,6 +21,17 @@ await build({
     external: ['electron'],
 })
 
+// Sandboxed: it may only require electron, so everything else is bundled in.
+await build({
+    entryPoints: ['electron/preload.ts'],
+    outfile: `${OUT}/preload.cjs`,
+    bundle: true,
+    platform: 'node',
+    format: 'cjs',
+    target: 'node24',
+    external: ['electron'],
+})
+
 await build({
     entryPoints: ['server/index.ts'],
     outfile: `${OUT}/server/index.mjs`,

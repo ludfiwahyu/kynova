@@ -2,6 +2,7 @@
 export * from './auth/oauth2'
 
 // browser
+export * from './browser/desktop'
 export * from './browser/download'
 export * from './browser/inviteLink'
 export * from './browser/motion'
