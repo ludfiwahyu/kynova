@@ -19,6 +19,10 @@ export function ConfirmHost() {
             <div className="dialog-actions">
                 <Button onClick={host.cancel}>Cancel</Button>
 
+                {host.current.alternative && (
+                    <Button onClick={host.acceptAlternative}>{host.current.alternative}</Button>
+                )}
+
                 <Button
                     variant="danger"
                     onClick={host.accept}

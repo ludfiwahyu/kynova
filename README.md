@@ -248,11 +248,13 @@ $env:NODE_ENV = "production"; node server/index.ts   # open http://127.0.0.1:878
 
 ```powershell
 npm run desktop              # build and open the app (unpackaged)
-npm run desktop:win          # installer, portable .exe and .zip (x64), in release\
+npm run desktop:win          # installer (x64), in release\
 npm run desktop:win:zip      # only the .zip
 ```
 
 The app is not signed, so Windows SmartScreen warns the first time: choose **More info › Run anyway**.
+
+The installed app looks for a newer release when it starts, and under **Settings › About › Updates**. It downloads and installs only after you agree. Releases are the updates: anyone who can publish one in the repository can ship code to every installed app, so protect that account with two-factor authentication.
 
 <br>
 
@@ -304,7 +306,7 @@ Put it behind a reverse proxy with HTTPS. Read [Running it for a team](#running-
 
 ### Build everything in the cloud
 
-The **Desktop app** workflow in `.github/workflows/desktop.yml` builds the macOS `.dmg` files and the Windows installer, portable `.exe` and `.zip` on real Macs and Windows PCs. Run it from the Actions tab, or push a tag such as `v0.2.0`. Building the Windows installer on a Mac otherwise needs Rosetta (`softwareupdate --install-rosetta`).
+The **Desktop app** workflow in `.github/workflows/desktop.yml` builds the macOS `.dmg` and the Windows installer on real Macs and Windows PCs. Run it from the Actions tab. Building the Windows installer on a Mac otherwise needs Rosetta (`softwareupdate --install-rosetta`).
 
 ---
 

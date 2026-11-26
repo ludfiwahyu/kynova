@@ -1,5 +1,5 @@
 # A test build on real Macs and Windows PCs: the .dmg (Apple Silicon and Intel in one) and
-# the Windows portable .exe. Run it from the Actions tab; the files are under the run's
+# the Windows installer. Run it from the Actions tab; the files are under the run's
 # Artifacts. Releases are built by release.yml.
 #
 # The apps are not signed. Signing needs an Apple Developer ID and a Windows code-signing

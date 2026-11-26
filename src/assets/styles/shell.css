@@ -3,7 +3,7 @@
 .shell {
     display: grid;
     grid-template-columns:
-        [side] var(--sidebar-width) [side-resize] auto
+        [left-rail] 44px [side] var(--sidebar-width) [side-resize] auto
         [console-left] var(--console-left-width, 0) [console-left-resize] auto [main] minmax(0, 1fr)
         [console-right-resize] auto [console-right] var(--console-right-width, 0)
         [panel-resize] auto [panel] var(--right-panel-width) [rail] 44px;
@@ -17,6 +17,10 @@
 .topbar {
     grid-column: 1 / -1;
     grid-row: top;
+}
+.left-rail {
+    grid-column: left-rail;
+    grid-row: body / status;
 }
 .sidebar {
     grid-column: side;
@@ -113,9 +117,41 @@
     --topbar-left: 84px;
 }
 
-/* Room for the window buttons drawn over the right end: three of 46px, as the page's zoom shows them. */
+/* Room for the window buttons over the right end: three of 46px, which zoom with the page. */
 :root[data-desktop='windows'] .topbar {
-    --topbar-right: calc(var(--window-buttons, 138px) + var(--space-2));
+    --topbar-right: calc(138px + var(--space-2));
+}
+
+.window-buttons {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    height: 44px;
+    margin: 0;
+    -webkit-app-region: no-drag;
+}
+
+.window-button {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 100%;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    cursor: default;
+}
+
+.window-button:hover {
+    background: var(--hover);
+    color: var(--ink);
+}
+
+.window-button[data-close]:hover {
+    background: #c42b1c;
+    color: #ffffff;
 }
 
 /* ── Top bar ─────────────────────────────────────────────────────────── */
@@ -608,6 +644,7 @@
     padding: var(--space-4);
 }
 
+.left-rail,
 .right-rail {
     display: flex;
     flex-direction: column;
@@ -1000,7 +1037,7 @@
 @media (max-width: 900px) {
     .shell {
         grid-template-columns:
-            [side side-resize console-left console-left-resize main console-right-resize console-right panel-resize panel] minmax(
+            [left-rail] 44px [side side-resize console-left console-left-resize main console-right-resize console-right panel-resize panel] minmax(
                 0,
                 1fr
             )
@@ -1015,13 +1052,13 @@
     }
 
     .sidebar {
-        width: min(300px, calc(100vw - 60px));
+        width: min(300px, calc(100vw - 104px));
         border-right: 1px solid var(--line);
     }
 
     .right-panel {
         justify-self: end;
-        width: min(340px, calc(100vw - 60px));
+        width: min(340px, calc(100vw - 104px));
         border-left: 1px solid var(--line);
     }
 
@@ -1065,15 +1102,29 @@
 }
 
 :is(.shell, .shell > .contents)
-    > :is(.sidebar, .shell-main, .right-panel, .bottom-panel, .right-rail) {
+    > :is(.left-rail, .sidebar, .shell-main, .right-panel, .bottom-panel, .right-rail) {
     margin: var(--shell-gap) var(--shell-gap) var(--shell-gap) 0;
     overflow: hidden;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
 }
 
-:is(.shell, .shell > .contents) > .sidebar {
+:is(.shell, .shell > .contents) > .left-rail {
     margin-left: var(--shell-gap);
+    border-right: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+    background: var(--panel);
+}
+
+/* The left rail and the sidebar read as one card, as the right panel and its rail do. */
+.shell:has(.sidebar) > .contents > .left-rail {
+    margin-right: 0;
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+
+:is(.shell, .shell > .contents) > .sidebar {
+    border-left-color: color-mix(in srgb, var(--line) 60%, transparent);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
 }
 
 :is(.shell, .shell > .contents) > .bottom-panel {
