@@ -20,6 +20,14 @@ The user runs git by hand. Claude does not run git commands that change anything
 3. Only when the user explicitly says to do it ("lakukan", "run it", "do the commit") does Claude run the git commands, and only those named.
 4. Reading is fine without asking: `git status`, `diff`, `log`, `show`.
 
+These apply to everything that touches a commit or a push, also when the user asked Claude to run it:
+
+5. Commit on `dev` only. Never commit or push on `main`; it changes only through a pull request from `dev`.
+6. Never create a branch (local or on GitHub) unless the user asks for that branch.
+7. The only author and committer is the person in the user's own `git config`. Never add `Co-Authored-By` or any other trailer naming someone else, never pass `--author` or change `user.name` / `user.email`, and nothing that would add Claude or another account to the repository's contributors.
+8. Before a commit, check `git branch --show-current` is `dev`. Before a push, check `git log origin/dev..HEAD --format='%an <%ae> | %cn <%ce> | %(trailers)'` shows only the user; if not, stop and say so.
+9. The release workflow's bot makes its own `release-please--*` branch and commits after a push to `main`. Tell the user when one appears; do not merge or delete it without being asked.
+
 ## Commit messages
 
 One group (or one logical change) per commit.
