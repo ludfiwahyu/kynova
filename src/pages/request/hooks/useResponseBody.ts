@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 
 import type { CodeLanguage } from '@/components'
-import { contentType } from '@/pages/request/logic/helpers'
+import { contentType, looksLikeJson } from '@/pages/request/logic/helpers'
 import type { ResponseBodyProps } from '@/pages/request/types'
 import { indentText, usePreferences } from '@/settings'
 import { contentLanguage, formatBytes, formatJson, formatMarkup, isFormattable } from '@/utils'
@@ -12,7 +12,8 @@ export function useResponseBody({ response }: ResponseBodyProps) {
     const indent = usePreferences(indentText)
 
     const type = contentType(response)
-    const shownAs = contentLanguage(type)
+    // Some servers send JSON as text/plain or text/html; it still formats and folds.
+    const shownAs = looksLikeJson(response.body) ? 'json' : contentLanguage(type)
     const isJson = shownAs === 'json'
     const canFormat = isFormattable(shownAs)
 

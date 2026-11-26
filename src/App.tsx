@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Button, ConfirmHost, EmptyState } from '@/components'
+import { Button, ConfirmHost, EmptyState, WindowButtons } from '@/components'
 import { usePrefersDark } from '@/hooks'
 import { Workbench } from '@/layouts'
 import { AuthScreen } from '@/pages/auth'
@@ -172,6 +172,7 @@ export function App() {
         <div className="contents">
             <Screen />
             <ConfirmHost />
+            <WindowButtons />
         </div>
     )
 }

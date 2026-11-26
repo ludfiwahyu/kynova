@@ -8,41 +8,6 @@
     background: var(--panel);
 }
 
-.sidebar-views {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    flex: none;
-    height: var(--bar-height);
-    padding: 0 var(--space-2);
-    border-bottom: 1px solid var(--line);
-}
-
-.sidebar-view-button {
-    display: grid;
-    place-items: center;
-    width: 36px;
-    height: 28px;
-    border: 0;
-    border-radius: var(--radius-sm);
-    background: none;
-    color: var(--ink-2);
-    cursor: pointer;
-    transition:
-        background-color 120ms var(--ease-out),
-        color 120ms var(--ease-out);
-}
-
-.sidebar-view-button:hover {
-    background: var(--hover);
-    color: var(--ink);
-}
-
-.sidebar-view-button[aria-pressed='true'] {
-    background: var(--selected);
-    color: var(--ink);
-}
-
 .sidebar-toolbar {
     display: flex;
     align-items: center;

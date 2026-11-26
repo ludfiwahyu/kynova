@@ -31,6 +31,7 @@ import {
     saveItem,
     selectTreeRange,
     toggleExpanded,
+    toggleFilterFolded,
     toggleTreeSelection,
     useCanEdit,
     useTreeDrag,
@@ -44,7 +45,10 @@ import type { TagColor } from '#shared/types.ts'
 export function useTreeRow({ item, depth, visible }: TreeRowProps) {
     const items = useWorkspace((state) => state.items)
     const canEdit = useCanEdit()
-    const isCollapsed = !useUi((state) => state.expanded[item.id] ?? false) && !visible
+    const isExpanded = useUi((state) => state.expanded[item.id] ?? false)
+    const isFilterFolded = useUi((state) => state.filterFolded[item.id] ?? false)
+    // While filtering, matches start open and folding is remembered apart from the tree's own.
+    const isCollapsed = visible ? isFilterFolded : !isExpanded
     const isActive = useUi(
         (state) => state.activeTab?.kind === 'item' && state.activeTab.id === item.id,
     )
@@ -88,6 +92,14 @@ export function useTreeRow({ item, depth, visible }: TreeRowProps) {
     }, [isNewFolder])
 
     useEnterAnimation(groupRef, container && !isCollapsed, GROUP_ENTER)
+
+    function toggle() {
+        if (visible) {
+            toggleFilterFolded(item.id)
+        } else {
+            toggleExpanded(item.id)
+        }
+    }
 
     // View model
 
@@ -160,7 +172,7 @@ export function useTreeRow({ item, depth, visible }: TreeRowProps) {
         event.stopPropagation()
 
         if (container) {
-            toggleExpanded(item.id)
+            toggle()
         }
     }
 
@@ -186,7 +198,7 @@ export function useTreeRow({ item, depth, visible }: TreeRowProps) {
         clearTreeSelection(item.id)
 
         if (container) {
-            toggleExpanded(item.id)
+            toggle()
         }
 
         openTab(tab, { preview: true })
@@ -242,12 +254,12 @@ export function useTreeRow({ item, depth, visible }: TreeRowProps) {
 
         const actions: Record<string, () => void> = {
             Enter: () => openTab(tab),
-            ' ': () => (container ? toggleExpanded(item.id) : openTab(tab, { preview: true })),
+            ' ': () => (container ? toggle() : openTab(tab, { preview: true })),
             ArrowDown: () => focusSiblingRow(row, 1),
             ArrowUp: () => focusSiblingRow(row, -1),
             ArrowRight: () =>
                 container && isCollapsed ? expand(item.id) : focusSiblingRow(row, 1),
-            ArrowLeft: () => (container && !isCollapsed ? toggleExpanded(item.id) : undefined),
+            ArrowLeft: () => (container && !isCollapsed ? toggle() : undefined),
             F2: () => canEdit && setIsRenaming(true),
             Delete: () => canEdit && void confirmDelete(item),
         }

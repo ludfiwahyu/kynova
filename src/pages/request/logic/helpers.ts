@@ -107,3 +107,18 @@ export function visibleFields(
             }),
     )
 }
+
+/** Whether a body is a JSON object or array, whatever its content type says. */
+export function looksLikeJson(body: string): boolean {
+    if (!/^\s*[{[]/.test(body)) {
+        return false
+    }
+
+    try {
+        JSON.parse(body)
+
+        return true
+    } catch {
+        return false
+    }
+}

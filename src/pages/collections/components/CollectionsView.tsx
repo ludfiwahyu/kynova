@@ -39,7 +39,7 @@ export function CollectionsView() {
                     aria-label="Filter collections"
                     placeholder="Filter"
                     value={view.filter}
-                    onChange={view.setFilter}
+                    onChange={view.changeFilter}
                 />
 
                 <Button

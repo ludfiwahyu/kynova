@@ -14,6 +14,9 @@ function findFile(base: string) {
     return SUFFIXES.map((suffix) => base + suffix).find(isFile)
 }
 
+// Vite fills this in at build time; tests run without Vite.
+Object.assign(globalThis, { __APP_PLATFORM__: 'WEB' })
+
 registerHooks({
     resolve(specifier, context, nextResolve) {
         const isAlias = specifier.startsWith('@/')

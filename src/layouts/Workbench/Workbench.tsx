@@ -32,19 +32,17 @@ export function Workbench({ workspaceId }: WorkbenchProps) {
                 />
             )}
 
-            {bench.sidebarOpen && (
-                <>
-                    <Sidebar />
+            <Sidebar />
 
-                    <ResizeHandle
-                        orientation="vertical"
-                        className="sidebar-resize"
-                        label="Resize sidebar"
-                        onDragStart={resize.startSidebar}
-                        onDrag={resize.dragSidebar}
-                        onReset={resize.resetSidebar}
-                    />
-                </>
+            {bench.sidebarOpen && (
+                <ResizeHandle
+                    orientation="vertical"
+                    className="sidebar-resize"
+                    label="Resize sidebar"
+                    onDragStart={resize.startSidebar}
+                    onDrag={resize.dragSidebar}
+                    onReset={resize.resetSidebar}
+                />
             )}
 
             <main

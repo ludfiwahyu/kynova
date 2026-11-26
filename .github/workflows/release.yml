@@ -1,7 +1,8 @@
 # Pushing to main runs release-please. It reads the commit types (feat, fix, BREAKING:) since
 # the last release and keeps a "Release PR" open that raises the version in package.json and
 # writes CHANGELOG.md. Merging that PR creates the tag and the GitHub Release; the build jobs
-# below then add the Mac .dmg and the Windows portable .exe to that Release.
+# below then add the Mac .dmg and the Windows installer to that Release,
+# with latest.yml and the .blockmap the installed Windows app reads to update itself.
 #
 # The apps are not signed. Signing needs an Apple Developer ID and a Windows code-signing
 # certificate, given to electron-builder as secrets (see https://www.electron.build/code-signing).
@@ -40,7 +41,7 @@ jobs:
                       files: release/*.dmg
                     - os: windows-latest
                       script: desktop:win
-                      files: release/*.exe
+                      files: release/*.exe release/*.exe.blockmap release/latest.yml
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v4
