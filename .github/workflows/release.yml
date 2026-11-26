@@ -26,6 +26,8 @@ jobs:
             - uses: googleapis/release-please-action@v4
               id: release
               with:
+                  # The user's own token, so release commits carry their name and not the bot's.
+                  token: ${{ secrets.RELEASE_TOKEN || github.token }}
                   config-file: release-please-config.json
                   manifest-file: .release-please-manifest.json
 
