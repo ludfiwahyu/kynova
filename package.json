@@ -110,6 +110,12 @@
                     "arch": [
                         "x64"
                     ]
+                },
+                {
+                    "target": "portable",
+                    "arch": [
+                        "x64"
+                    ]
                 }
             ],
             "icon": "build/icon.png",
@@ -118,6 +124,9 @@
                 "owner": "ludfiwahyu",
                 "repo": "kynova"
             }
+        },
+        "portable": {
+            "artifactName": "Kynova-${version}-${os}-${arch}-portable.${ext}"
         },
         "fileOptions": {
             "files": [
