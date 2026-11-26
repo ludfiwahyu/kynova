@@ -100,11 +100,16 @@ function listenToUpdater(): void {
     })
 }
 
+/** Only the installed app updates itself: the portable .exe would be handed the installer. */
+function canUpdate(): boolean {
+    return app.isPackaged && !process.env.PORTABLE_EXECUTABLE_DIR
+}
+
 /** Keeps the installed app up to date from the project's releases, asking before it acts. */
 export function startUpdates(
     fromApp: (event: Electron.IpcMainEvent) => BrowserWindow | null,
 ): void {
-    if (!app.isPackaged) {
+    if (!canUpdate()) {
         state = { status: 'unsupported' }
     }
 
@@ -114,7 +119,7 @@ export function startUpdates(
         }
     })
 
-    if (!app.isPackaged) {
+    if (!canUpdate()) {
         return
     }
 
