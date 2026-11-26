@@ -76,6 +76,8 @@ interface UiState {
     previewTab: Tab | null
     /** Ids of open collections and folders. Everything starts folded. */
     expanded: Record<string, boolean>
+    /** Rows folded by hand while the explorer is filtered, where everything else starts open. */
+    filterFolded: Record<string, boolean>
     collapsedSections: Partial<Record<SidebarSection, boolean>>
     rightPanel: RightPanel | null
     bottomPanel: BottomPanel | null
@@ -108,7 +110,7 @@ export const DEFAULT_LAYOUT: Layout = {
     rightPanelWidth: 340,
     requestShare: 0.45,
     bottomPanelHeight: 260,
-    responseDock: 'bottom',
+    responseDock: 'right',
     requestWidthShare: 0.5,
     consoleDock: 'bottom',
     consoleWidth: 420,
@@ -128,6 +130,7 @@ export const useUi = create<UiState>()(
             activeTab: null,
             previewTab: null,
             expanded: {},
+            filterFolded: {},
             // The sections below the collections start folded.
             collapsedSections: { environments: true },
             rightPanel: null,
@@ -141,6 +144,17 @@ export const useUi = create<UiState>()(
         }),
         {
             name: STORAGE_KEYS.ui,
+            version: 1,
+            // Version 1 put the response beside the request; layouts saved before move over once.
+            migrate: (persisted, version) => {
+                const saved = persisted as Partial<UiState>
+
+                if (version < 1 && saved.layout) {
+                    saved.layout.responseDock = 'right'
+                }
+
+                return saved
+            },
             // Tabs point into one workspace's documents, so they are not kept across reloads.
             partialize: ({
                 sidebar,
@@ -407,15 +421,32 @@ export function toggleExpanded(id: string): void {
 
 export function expand(id: string): void {
     useUi.setState((state) =>
-        state.expanded[id]
+        state.expanded[id] && !state.filterFolded[id]
             ? {}
             : {
                   expanded: {
                       ...state.expanded,
                       [id]: true,
                   },
+                  filterFolded: {
+                      ...state.filterFolded,
+                      [id]: false,
+                  },
               },
     )
+}
+
+export function toggleFilterFolded(id: string): void {
+    useUi.setState((state) => ({
+        filterFolded: {
+            ...state.filterFolded,
+            [id]: !state.filterFolded[id],
+        },
+    }))
+}
+
+export function clearFilterFolded(): void {
+    useUi.setState({ filterFolded: {} })
 }
 
 export function openSettings(section: SettingsSection = 'general'): void {

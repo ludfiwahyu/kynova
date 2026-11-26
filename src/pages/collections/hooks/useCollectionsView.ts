@@ -1,10 +1,13 @@
 import type { ChangeEvent, DragEvent } from 'react'
 import { useMemo, useRef, useState } from 'react'
 
+import { choose } from '@/components'
 import { useRowGlide } from '@/pages/collections/hooks/useRowGlide'
-import { visibleIds } from '@/pages/collections/logic/helpers'
+import { sameCollection, visibleIds } from '@/pages/collections/logic/helpers'
 import {
+    clearFilterFolded,
     createCollection,
+    deleteItem,
     editNameSoon,
     expand,
     openTab,
@@ -18,10 +21,13 @@ import {
     useWorkspaceSettings,
 } from '@/stores'
 import { childrenOf, importFile, nextOrder } from '@/utils'
+import { MAX_NAME_LENGTH } from '#shared/limits.ts'
+import type { Item } from '#shared/types.ts'
 
 export function useCollectionsView() {
     const items = useWorkspace((state) => state.items)
     const expanded = useUi((state) => state.expanded)
+    const filterFolded = useUi((state) => state.filterFolded)
     const settings = useWorkspaceSettings()
     const workspaceId = useWorkspaceId()
     const canEdit = useCanEdit()
@@ -33,7 +39,7 @@ export function useCollectionsView() {
     const [importError, setImportError] = useState<string | null>(null)
     const [isDropping, setDropping] = useState(false)
 
-    useRowGlide(treeRef, [items, expanded])
+    useRowGlide(treeRef, [items, expanded, filterFolded])
 
     const visible = useMemo(() => visibleIds(items, filter), [items, filter])
     const collections = childrenOf(items, null).filter(
@@ -45,6 +51,12 @@ export function useCollectionsView() {
     const hasNoMatch = hasNone && Boolean(visible)
     const noMatchText = `Nothing matches “${filter.trim()}”.`
     const showEnvironments = settings.panels?.environments !== false
+
+    // A new search starts with every match open.
+    function changeFilter(value: string) {
+        clearFilterFolded()
+        setFilter(value)
+    }
 
     function newCollection() {
         const collection = createCollection()
@@ -72,9 +84,33 @@ export function useCollectionsView() {
                 const imported = importFile(await file.text(), order)
 
                 if (imported.kind === 'collection') {
-                    const [collection] = imported.items
+                    const [collection, ...rest] = imported.items
+                    const current = useWorkspace.getState().items
+                    const existing = sameCollection(current, collection)
+                    const answer = existing ? await askAboutSame(existing.name) : null
 
-                    saveItems(imported.items)
+                    if (answer === 'cancel') {
+                        continue
+                    }
+
+                    let added: Item = collection
+
+                    if (existing && answer === 'action') {
+                        // The old one goes to the Archive, so a replace can be undone.
+                        deleteItem(existing.id)
+                        added = {
+                            ...collection,
+                            order: existing.order,
+                            color: existing.kind === 'collection' ? existing.color : undefined,
+                        } as Item
+                    } else if (answer === 'alternative') {
+                        added = {
+                            ...collection,
+                            name: `${collection.name} Copy`.slice(0, MAX_NAME_LENGTH),
+                        }
+                    }
+
+                    saveItems([added, ...rest])
                     expand(collection.id)
                     order += 1
 
@@ -102,6 +138,15 @@ export function useCollectionsView() {
         }
 
         setImportError(errors.length > 0 ? errors.join('\n') : null)
+    }
+
+    function askAboutSame(name: string) {
+        return choose({
+            title: 'Collection already exists',
+            message: `“${name}” is already in this workspace. Replace moves the current one to the Archive.`,
+            action: 'Replace',
+            alternative: 'Make a copy',
+        })
     }
 
     function chooseFile() {
@@ -164,7 +209,7 @@ export function useCollectionsView() {
         hasNoMatch,
         noMatchText,
         showEnvironments,
-        setFilter,
+        changeFilter,
         newCollection,
         chooseFile,
         handleFile,

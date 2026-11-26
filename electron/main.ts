@@ -20,6 +20,8 @@ import {
     TITLE_BAR_HEIGHT,
 } from '#shared/desktop.ts'
 
+import { startUpdates } from './updates.ts'
+
 const SERVER = path.join(__dirname, 'server', 'index.mjs')
 const WEB_APP = path.join(__dirname, '..', 'dist')
 const PRELOAD = path.join(__dirname, 'preload.cjs')
@@ -31,7 +33,6 @@ const TRAFFIC_LIGHTS = {
     x: 16,
     y: (TITLE_BAR_HEIGHT - 14) / 2,
 }
-const HEX_COLOR = /^#[0-9a-f]{6}$/i
 /** The OAuth 2.0 sign-in window the web app opens (`window.open(..., 'kynova-oauth2')`). */
 const OAUTH_WINDOW = 'kynova-oauth2'
 
@@ -182,7 +183,8 @@ const MENU_ITEMS: Record<DesktopMenu, MenuItemConstructorOptions[]> = {
 
 /**
  * The window has no title bar of its own: the page's top bar takes its place. On a Mac the
- * traffic lights sit in it; on Windows and Linux the window buttons are drawn over its right end.
+ * traffic lights sit in it; on Windows and Linux the page draws its own window buttons at its
+ * right end, so they zoom with the page, which the system's overlay buttons cannot.
  */
 function titleBar(): Electron.BrowserWindowConstructorOptions {
     if (IS_MAC) {
@@ -192,21 +194,13 @@ function titleBar(): Electron.BrowserWindowConstructorOptions {
         }
     }
 
-    const isDark = nativeTheme.shouldUseDarkColors
-
     return {
         titleBarStyle: 'hidden',
-        // The page sends its own colours once it has a theme.
-        titleBarOverlay: {
-            color: isDark ? '#1c1c1c' : '#f9f9f9',
-            symbolColor: isDark ? '#ffffff' : '#212121',
-            height: TITLE_BAR_HEIGHT,
-        },
         icon: ICON,
     }
 }
 
-/** Only the app's own page may open menus or colour the window. */
+/** Only the app's own page may open menus or act on the window. */
 function fromApp(event: Electron.IpcMainEvent): BrowserWindow | null {
     if (!sameOrigin(event.senderFrame?.url ?? '')) {
         return null
@@ -234,42 +228,24 @@ function listenToPage(): void {
         })
     })
 
-    ipcMain.on(DESKTOP_CHANNELS.titleBarColors, (event, color: unknown, symbolColor: unknown) => {
+    ipcMain.on(DESKTOP_CHANNELS.windowAction, (event, action: unknown) => {
         const window = fromApp(event)
 
-        if (
-            IS_MAC ||
-            !window ||
-            typeof color !== 'string' ||
-            typeof symbolColor !== 'string' ||
-            !HEX_COLOR.test(color) ||
-            !HEX_COLOR.test(symbolColor)
-        ) {
+        if (!window) {
             return
         }
 
-        window.setTitleBarOverlay({
-            color,
-            symbolColor,
-        })
-    })
-
-    // Page zoom resizes the top bar, not the window buttons the system draws over it.
-    ipcMain.on(DESKTOP_CHANNELS.titleBarHeight, (event, height: unknown) => {
-        const window = fromApp(event)
-
-        if (
-            IS_MAC ||
-            !window ||
-            typeof height !== 'number' ||
-            !Number.isFinite(height) ||
-            height < 16 ||
-            height > 400
-        ) {
-            return
+        if (action === 'minimize') {
+            window.minimize()
+        } else if (action === 'close') {
+            window.close()
+        } else if (action === 'toggleMaximize') {
+            if (window.isMaximized()) {
+                window.unmaximize()
+            } else {
+                window.maximize()
+            }
         }
-
-        window.setTitleBarOverlay({ height: Math.round(height) })
     })
 }
 
@@ -301,6 +277,13 @@ function openWindow(): BrowserWindow {
     window.on('leave-full-screen', () =>
         window.webContents.send(DESKTOP_CHANNELS.fullScreen, false),
     )
+
+    const sendMaximized = () =>
+        window.webContents.send(DESKTOP_CHANNELS.maximized, window.isMaximized())
+
+    window.on('maximize', sendMaximized)
+    window.on('unmaximize', sendMaximized)
+    window.webContents.on('did-finish-load', sendMaximized)
 
     // ⌘= or Ctrl+= zooms in, as in browsers. Electron's own menu only takes ⌘+ (Shift on most
     // keyboards); its ⌘- and ⌘0 already match. The step is the menu's.
@@ -383,6 +366,10 @@ if (!app.requestSingleInstanceLock()) {
             listenToPage()
             await startServer()
             openWindow()
+
+            if (process.platform === 'win32') {
+                startUpdates(fromApp)
+            }
 
             // On a Mac the app stays open without windows; the Dock icon opens one again.
             app.on('activate', () => {

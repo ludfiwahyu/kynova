@@ -10,7 +10,7 @@ import {
 } from '@/pages/collections/logic/config'
 import type { LabelPart } from '@/pages/collections/types'
 import { deleteItem, editNameSoon, expand, openTab } from '@/stores'
-import type { DropZone, ItemsById, Variables } from '@/utils'
+import { childrenOf, type DropZone, type ItemsById, type Variables } from '@/utils'
 import type { Item } from '#shared/types.ts'
 
 /** The items whose name or URL matches, and every container above them. */
@@ -198,4 +198,16 @@ function addressParts(address: string, variables: Variables): LabelPart[] {
     parts.push({ text: address.slice(end) })
 
     return parts.filter((part) => part.text !== '')
+}
+
+/** The collection an imported one would double: the same source id, or else the same name. */
+export function sameCollection(items: ItemsById, imported: Item): Item | undefined {
+    const collections = childrenOf(items, null)
+    const sourceId = imported.kind === 'collection' ? imported.sourceId : undefined
+
+    return (
+        collections.find(
+            (each) => each.kind === 'collection' && sourceId && each.sourceId === sourceId,
+        ) ?? collections.find((each) => each.name === imported.name)
+    )
 }
